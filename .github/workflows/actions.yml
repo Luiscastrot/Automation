@@ -38,4 +38,4 @@ jobs:
           DROPBOX_APP_SECRET: ${{ secrets.DROPBOX_APP_SECRET }}
           DROPBOX_REFRESH_TOKEN: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
           SOURCE_PATH: ${{env.ENV_CUSTOM_DATE_FILE}}
-           DEST_PATH: /carpeta_de_prueba/${{env.ENV_CUSTOM_DATE_FILE}}
+          DEST_PATH: /carpeta_de_prueba/${{env.ENV_CUSTOM_DATE_FILE}}
