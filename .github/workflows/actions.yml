@@ -16,7 +16,7 @@ jobs:
       - name: setup python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9' # install the python version needed
+          python-version: '3.13' # install the python version needed
           
       - name: install python packages
         run: |
@@ -36,41 +36,3 @@ jobs:
           DROPBOX_REFRESH_TOKEN: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
           SOURCE_PATH: elevation_data.txt
           DEST_PATH: /carpeta_de_prueba/elevation_data.txt
-
-      # - name: Dropbox Upload 📦
-      #   uses: gomes042/gh-actions-dropbox/files/upload@2
-      #   with:
-      #     DROPBOX_APP_KEY: ${{ secrets.DROPBOX_APP_KEY }}
-      #     DROPBOX_APP_SECRET: ${{ secrets.DROPBOX_APP_SECRET }}
-      #     DROPBOX_REFRESH_TOKEN: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
-      #     SOURCE_PATH: elevation_data.txt
-      #     DEST_PATH: /github/elevation_data.txt
-
-      # - name: Upload to Dropbox
-      #   uses: Lewuathe/dropbox-github-action@v1
-      #   with:
-      #     dropbox-app-key: ${{ secrets.DROPBOX_APP_KEY }}
-      #     dropbox-app-secret: ${{ secrets.DROPBOX_APP_SECRET }}
-      #     dropbox-refresh-token: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
-      #     source-path: /elevation_data.txt
-      #     target-path: /github/
-
-      # - name: upload to dropbox
-      #   uses: deka0106/upload-to-dropbox@v2
-      #   with:
-      #     dropbox_access_token: ${{ secrets.DROPBOX_ACCESS_TOKEN }}
-      #     src: ./elevation_data.txt
-      #     dest: /github/
-          
-      # - name: commit files
-      #   run: |
-      #     git config --local user.email "action@github.com"
-      #     git config --local user.name "GitHub Action"
-      #     git add -A
-      #     git diff-index --quiet HEAD || (git commit -a -m "updated logs" --allow-empty)
-          
-      # - name: push changes
-      #   uses: ad-m/github-push-action@v0.6.0
-      #   with:
-      #     github_token: ${{ secrets.GITHUB_TOKEN }}
-      #     branch: main 
