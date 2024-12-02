@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Configuration
 BASE_URL = 'https://api.cin7.com/api/v1/SalesOrders'
-FIELDS = 'sourceUser','downloadSource','reference,company,firstName,lastName,projectName,source,currencyCode,currencyRate,lineItems,InvoiceDate,invoiceNumber'
+FIELDS = 'sourceUser','downloadSource','reference,company,firstName,lastName,projectName,source,currencyCode,currencyRate,lineItems,invoiceDate,invoiceNumber'
 ROWS_PER_PAGE = 250
 
 ARL_KEY = os.environ["ARL_KEY"]
@@ -66,7 +66,7 @@ def calculate_date_range():
     return last_saturday, last_friday
 
 def is_valid_credit_note(credit_note, start_date, end_date):
-    created_date = parse_date(credit_note.get('InvoiceDate'))
+    created_date = parse_date(credit_note.get('invoiceDate'))
     return created_date and start_date <= created_date <= end_date
 
 def process_credit_note(credit_note, user_name):
@@ -97,7 +97,7 @@ def process_credit_note(credit_note, user_name):
             'lineItemQty': item.get('qty', ''),
             'lineItemUnitPrice': adjusted_unit_price,
             'lineItemDiscount': adjusted_discount,
-            'InvoiceDate': created_date.strftime('%d.%m.%Y') if created_date else ''
+            'invoiceDate': created_date.strftime('%d.%m.%Y') if created_date else ''
 
         })
     
@@ -137,7 +137,7 @@ def main():
     
     fieldnames = ['downloadSource','sourceUser','reference', 'company', 'firstName', 'lastName', 'projectName', 
                   'channel', 'currencyCode', 'lineItemStyleCode', 'lineItemName', 
-                  'lineItemQty', 'lineItemUnitPrice', 'lineItemDiscount', 'InvoiceDate']
+                  'lineItemQty', 'lineItemUnitPrice', 'lineItemDiscount', 'invoiceDate']
     
     file_name = f"Sales_Orders_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"
 
