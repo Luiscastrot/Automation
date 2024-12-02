@@ -66,7 +66,7 @@ def calculate_date_range():
     return last_saturday, last_friday
 
 def is_valid_credit_note(credit_note, start_date, end_date):
-    created_date = parse_date(credit_note.get('createdDate'))
+    created_date = parse_date(credit_note.get('invoiceDate'))
     return created_date and start_date <= created_date <= end_date
 
 def process_credit_note(credit_note, user_name):
