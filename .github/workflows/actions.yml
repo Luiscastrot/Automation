@@ -1,4 +1,4 @@
-name: run main.py
+name: run WeeklySO.py
 
 on:
   workflow_dispatch:
@@ -23,10 +23,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           
-      - name: execute py script # run main.py
+      - name: execute py script
         env:
-          SOME_SECRET: ${{ secrets.SOME_SECRET }}
-        run: python main.py
+          ARIB_KEY: ${{ secrets.ARIB_KEY }}
+          ARL_KEY: ${{ secrets.ARL_KEY }}
+          ARNL_KEY: ${{ secrets.ARNL_KEY }}
+          ARF_KEY: ${{ secrets.ARF_KEY }}
+        run: python WeeklySO.py
 
       - name: Upload File to Dropbox
         uses: ./upload-dropbox-action
