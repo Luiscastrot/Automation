@@ -139,9 +139,12 @@ def main():
                   'channel', 'currencyCode', 'lineItemStyleCode', 'lineItemName', 
                   'lineItemQty', 'lineItemUnitPrice', 'lineItemDiscount', 'invoiceDate']
     
-    file_path = r"C:\Users\Luis"
     file_name = f"Sales_Orders_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"
-    full_file_path = os.path.join(file_path, file_name)
+
+    env_file = os.getenv('GITHUB_ENV') 
+    with open(env_file, "a") as env_file:    
+        env_file.write(f"ENV_CUSTOM_DATE_FILE={file_name}")
+ 
 
     all_credit_notes = []
 
@@ -152,13 +155,13 @@ def main():
             all_credit_notes.extend(user_credit_notes)
 
     # Write all credit notes to a single CSV file
-    with open(full_file_path, mode='w', newline='', encoding='utf-8') as csv_file:
+    with open(file_name, mode='w', newline='', encoding='utf-8') as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
         for credit_note in all_credit_notes:
             writer.writerow(credit_note)
 
-    logging.info(f"Data successfully written to {full_file_path}")
+    logging.info(f"Data successfully written to {file_name}")
     logging.info(f"Date range used for filtering: Start: {start_date.strftime('%Y-%m-%d %H:%M:%S %Z')} - End: {end_date.strftime('%Y-%m-%d %H:%M:%S %Z')}")
 
 if __name__ == "__main__":
