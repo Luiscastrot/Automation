@@ -66,13 +66,13 @@ def calculate_date_range():
     return last_saturday, last_friday
 
 def is_valid_credit_note(credit_note, start_date, end_date):
-    created_date = parse_date(credit_note.get('invoiceDate'))
-    return created_date and start_date <= created_date <= end_date
+    invoice_date = parse_date(credit_note.get('invoiceDate'))
+    return invoice_date and start_date <= invoice_date <= end_date
 
 def process_credit_note(credit_note, user_name):
     line_items = credit_note.get('lineItems', [])
     currency_rate = float(credit_note.get('currencyRate', 1))
-    created_date = parse_date(credit_note.get('createdDate'))
+    invoice_date = parse_date(credit_note.get('invoiceDate'))
     
     results = []
     for item in line_items:
@@ -97,7 +97,7 @@ def process_credit_note(credit_note, user_name):
             'lineItemQty': item.get('qty', ''),
             'lineItemUnitPrice': adjusted_unit_price,
             'lineItemDiscount': adjusted_discount,
-            'invoiceDate': created_date.strftime('%d.%m.%Y') if created_date else ''
+            'invoiceDate': invoice_date.strftime('%d.%m.%Y') if invoice_date else ''
 
         })
     
