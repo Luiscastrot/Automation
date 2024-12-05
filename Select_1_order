@@ -1,8 +1,6 @@
 import requests
 import base64
 import urllib.parse
-import json  
-import dateutil.parser 
 
 
 # Cin7 API Username and Connection Key
