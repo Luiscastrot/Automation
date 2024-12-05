@@ -92,7 +92,6 @@ def process_sales_orders(sales_orders, user_name):
             'projectName': sales_orders.get('projectName'),
             'channel': sales_orders.get('source'),
             'currencyCode': sales_orders.get('currencyCode'),
-            'lineItemStyleCode': item.get('styleCode', ''),
             'code':item.get('code',''),
             'lineItemName': item.get('name', ''),
             'lineItemQty': item.get('qty', ''),
@@ -137,7 +136,7 @@ def main():
     start_date, end_date = calculate_date_range()
     
     fieldnames = ['downloadSource','sourceUser','reference', 'company', 'firstName', 'lastName', 'projectName', 
-                  'channel', 'currencyCode', 'lineItemStyleCode','code', 'lineItemName', 
+                  'channel', 'currencyCode','code', 'lineItemName', 
                   'lineItemQty', 'lineItemUnitPrice', 'lineItemDiscount', 'invoiceDate']
     
     file_name = f"Sales_Orders_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"
