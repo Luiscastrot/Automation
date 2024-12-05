@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Configuration
 BASE_URL =  'https://api.cin7.com/api/v1/CreditNotes'
-FIELDS = 'sourceUser,downloadSource,reference,company,firstName,lastName,projectName,source,currencyCode,currencyRate,lineItems,invoiceDate,invoiceNumber'
+FIELDS = 'sourceUser,downloadSource,reference,company,firstName,lastName,projectName,source,currencyCode,currencyRate,lineItems,CompletedDate,invoiceNumber'
 ROWS_PER_PAGE = 250
 
 ARL_KEY = os.environ["ARL_KEY"]
@@ -66,13 +66,13 @@ def calculate_date_range():
     return last_saturday, last_friday
 
 def is_valid_credit_notes(credit_notes, start_date, end_date):
-    invoice_date = parse_date(credit_notes.get('invoiceDate'))
+    invoice_date = parse_date(credit_notes.get('CompletedDate'))
     return invoice_date and start_date <= invoice_date <= end_date
 
 def process_credit_notes(credit_notes, user_name):
     line_items = credit_notes.get('lineItems', [])
     currency_rate = float(credit_notes.get('currencyRate', 1))
-    invoice_date = parse_date(credit_notes.get('invoiceDate'))
+    invoice_date = parse_date(credit_notes.get('CompletedDate'))
     
     results = []
     for item in line_items:
@@ -97,7 +97,7 @@ def process_credit_notes(credit_notes, user_name):
             'lineItemQty': item.get('qty', ''),
             'lineItemUnitPrice': adjusted_unit_price,
             'lineItemDiscount': adjusted_discount,
-            'invoiceDate': invoice_date.strftime('%d.%m.%Y') if invoice_date else ''
+            'CompletedDate': invoice_date.strftime('%d.%m.%Y') if invoice_date else ''
 
         })
     
@@ -137,7 +137,7 @@ def main():
     
     fieldnames = ['downloadSource','sourceUser','reference', 'company', 'firstName', 'lastName', 'projectName', 
                   'channel', 'currencyCode','code', 'lineItemName', 
-                  'lineItemQty', 'lineItemUnitPrice', 'lineItemDiscount', 'invoiceDate']
+                  'lineItemQty', 'lineItemUnitPrice', 'lineItemDiscount', 'CompletedDate']
     
     file_name = f"credit_notes_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"
 
