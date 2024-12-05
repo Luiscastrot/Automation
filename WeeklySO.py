@@ -65,14 +65,14 @@ def calculate_date_range():
     last_friday = last_friday.replace(hour=23, minute=59, second=59, microsecond=999999)
     return last_saturday, last_friday
 
-def is_valid_credit_note(credit_note, start_date, end_date):
-    invoice_date = parse_date(credit_note.get('invoiceDate'))
+def is_valid_sales_orders(sales_orders, start_date, end_date):
+    invoice_date = parse_date(sales_orders.get('invoiceDate'))
     return invoice_date and start_date <= invoice_date <= end_date
 
-def process_credit_note(credit_note, user_name):
-    line_items = credit_note.get('lineItems', [])
-    currency_rate = float(credit_note.get('currencyRate', 1))
-    invoice_date = parse_date(credit_note.get('invoiceDate'))
+def process_sales_orders(sales_orders, user_name):
+    line_items = sales_orders.get('lineItems', [])
+    currency_rate = float(sales_orders.get('currencyRate', 1))
+    invoice_date = parse_date(sales_orders.get('invoiceDate'))
     
     results = []
     for item in line_items:
@@ -85,13 +85,13 @@ def process_credit_note(credit_note, user_name):
         results.append({
             'sourceUser': user_name,
             'downloadSource': f"Cin7_{user_name}",
-            'reference': credit_note.get('reference'),
-            'company': credit_note.get('company'),
-            'firstName': credit_note.get('firstName'),
-            'lastName': credit_note.get('lastName'),
-            'projectName': credit_note.get('projectName'),
-            'channel': credit_note.get('source'),
-            'currencyCode': credit_note.get('currencyCode'),
+            'reference': sales_orders.get('reference'),
+            'company': sales_orders.get('company'),
+            'firstName': sales_orders.get('firstName'),
+            'lastName': sales_orders.get('lastName'),
+            'projectName': sales_orders.get('projectName'),
+            'channel': sales_orders.get('source'),
+            'currencyCode': sales_orders.get('currencyCode'),
             'lineItemStyleCode': item.get('styleCode', ''),
             'lineItemName': item.get('name', ''),
             'lineItemQty': item.get('qty', ''),
@@ -106,7 +106,7 @@ def process_credit_note(credit_note, user_name):
 def process_user(user):
     headers = get_auth_header(user['username'], user['key'])
     start_date, end_date = calculate_date_range()
-    all_credit_notes = []
+    all_sales_orderss = []
     page = 1
 
     while True:
@@ -122,15 +122,15 @@ def process_user(user):
             logging.info(f"No more data to fetch for user {user['username']}.")
             break
 
-        for credit_note in data:
-            if is_valid_credit_note(credit_note, start_date, end_date):
-                all_credit_notes.extend(process_credit_note(credit_note, user['username']))
+        for sales_orders in data:
+            if is_valid_sales_orders(sales_orders, start_date, end_date):
+                all_sales_orderss.extend(process_sales_orders(sales_orders, user['username']))
 
         logging.info(f"Page {page} processed for user {user['username']}.")
         page += 1
         time.sleep(0.5)  # Rate limiting
 
-    return all_credit_notes
+    return all_sales_orderss
 
 def main():
     start_date, end_date = calculate_date_range()
@@ -146,20 +146,20 @@ def main():
         env_file.write(f"ENV_CUSTOM_DATE_FILE={file_name}")
  
 
-    all_credit_notes = []
+    all_sales_orderss = []
 
     # Process users in parallel
     with ThreadPoolExecutor(max_workers=4) as executor:
         results = executor.map(process_user, USERS)
-        for user_credit_notes in results:
-            all_credit_notes.extend(user_credit_notes)
+        for user_sales_orderss in results:
+            all_sales_orderss.extend(user_sales_orderss)
 
     # Write all credit notes to a single CSV file
     with open(file_name, mode='w', newline='', encoding='utf-8') as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
-        for credit_note in all_credit_notes:
-            writer.writerow(credit_note)
+        for sales_orders in all_sales_orderss:
+            writer.writerow(sales_orders)
 
     logging.info(f"Data successfully written to {file_name}")
     logging.info(f"Date range used for filtering: Start: {start_date.strftime('%Y-%m-%d %H:%M:%S %Z')} - End: {end_date.strftime('%Y-%m-%d %H:%M:%S %Z')}")
