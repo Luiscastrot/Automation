@@ -35,7 +35,7 @@ url = f'{base_url}?fields={fields}&page={page}&rows={rows}'
 id= 67903
 url2 = f'{base_url}/{id}'
 
-customReference = "reference = 'SO-ARL24-72906'"
+customReference = "reference = 'SO-ARL24-77173'"
 encoded_where = urllib.parse.quote(customReference, safe="=")
 url3 = f'{base_url}?where={encoded_where}'
 # Print the request URL and headers for debugging
