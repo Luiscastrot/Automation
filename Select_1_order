@@ -1,0 +1,57 @@
+import requests
+import base64
+import urllib.parse
+import json  
+import dateutil.parser 
+
+
+# Cin7 API Username and Connection Key
+api_username = 'AlbertRogerUK'  # Your actual API Username
+connection_key = 'd7fa15ce7fde46de82b53fd4dcaea663'  # Your actual Connection Key
+
+# Encode credentials in Base64
+credentials = f"{api_username}:{connection_key}"
+encoded_credentials = base64.b64encode(credentials.encode('utf-8')).decode('utf-8')
+
+# Headers for the request
+headers = {
+    'Authorization': f'Basic {encoded_credentials}',
+    'Content-Type': 'application/json'
+}
+
+# Base URL and endpoint path
+base_url = 'https://api.cin7.com/api/v1/SalesOrders'
+
+# Query parameters
+fields = 'reference,company,firstName,lastName,projectName,source,currencyCode,invoiceDate,lineItems[styleCode],lineItems[qty],lineItems[unitPrice],LineItem[Discounts]'
+encoded_fields = urllib.parse.quote(fields)  # URL encode the fields
+
+# Pagination parameters
+page = 1
+rows = 10
+
+# Combine base URL and endpoint path with parameters
+url = f'{base_url}?fields={fields}&page={page}&rows={rows}'
+id= 67903
+url2 = f'{base_url}/{id}'
+
+customReference = "reference = 'SO-ARL24-72906'"
+encoded_where = urllib.parse.quote(customReference, safe="=")
+url3 = f'{base_url}?where={encoded_where}'
+# Print the request URL and headers for debugging
+print(f"Request URL: {url3}")
+print(f"Request Headers: {headers}")
+
+# Make the GET request
+response = requests.get(url3, headers=headers)
+# Check if the request was successful
+if response.status_code == 200:
+    # Parse the JSON response
+    data = response.json()
+    print("Response Data:", data)
+elif response.status_code == 404:
+    print("Resource not found. Verify the endpoint and resource ID.")
+elif response.status_code == 401:
+    print("Unauthorized. Check your credentials.")
+else:
+    print(f"Failed to retrieve data: {response.status_code}, {response.text}")
