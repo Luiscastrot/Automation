@@ -65,14 +65,14 @@ def calculate_date_range():
     last_friday = last_friday.replace(hour=23, minute=59, second=59, microsecond=999999)
     return last_saturday, last_friday
 
-def is_valid_credit_notes(credit_notes, start_date, end_date):
-    invoice_date = parse_date(credit_notes.get('CompletedDate'))
-    return invoice_date and start_date <= invoice_date <= end_date
+def is_valid_credit_note(credit_note, start_date, end_date):
+    created_date = parse_date(credit_note.get('createdDate'))
+    return created_date and start_date <= created_date <= end_date
 
-def process_credit_notes(credit_notes, user_name):
-    line_items = credit_notes.get('lineItems', [])
-    currency_rate = float(credit_notes.get('currencyRate', 1))
-    invoice_date = parse_date(credit_notes.get('invoiceDate'))
+def process_credit_note(credit_note, user_name):
+    line_items = credit_note.get('lineItems', [])
+    currency_rate = float(credit_note.get('currencyRate', 1))
+    created_date = parse_date(credit_note.get('createdDate'))
     
     results = []
     for item in line_items:
@@ -85,19 +85,19 @@ def process_credit_notes(credit_notes, user_name):
         results.append({
             'sourceUser': user_name,
             'downloadSource': f"Cin7_{user_name}",
-            'reference': credit_notes.get('reference'),
-            'company': credit_notes.get('company'),
-            'firstName': credit_notes.get('firstName'),
-            'lastName': credit_notes.get('lastName'),
-            'projectName': credit_notes.get('projectName'),
-            'channel': credit_notes.get('source'),
-            'currencyCode': credit_notes.get('currencyCode'),
-            'code':item.get('code',''),
+            'reference': credit_note.get('reference'),
+            'company': credit_note.get('company'),
+            'firstName': credit_note.get('firstName'),
+            'lastName': credit_note.get('lastName'),
+            'projectName': credit_note.get('projectName'),
+            'channel': credit_note.get('source'),
+            'currencyCode': credit_note.get('currencyCode'),
+            'lineItemStyleCode': item.get('styleCode', ''),
             'lineItemName': item.get('name', ''),
             'lineItemQty': item.get('qty', ''),
             'lineItemUnitPrice': adjusted_unit_price,
             'lineItemDiscount': adjusted_discount,
-            'invoiceDate': invoice_date.strftime('%d.%m.%Y') if invoice_date else ''
+            'invoiceDate': created_date.strftime('%d.%m.%Y') if created_date else ''
 
         })
     
@@ -106,7 +106,7 @@ def process_credit_notes(credit_notes, user_name):
 def process_user(user):
     headers = get_auth_header(user['username'], user['key'])
     start_date, end_date = calculate_date_range()
-    all_credit_notess = []
+    all_credit_notes = []
     page = 1
 
     while True:
@@ -122,46 +122,43 @@ def process_user(user):
             logging.info(f"No more data to fetch for user {user['username']}.")
             break
 
-        for credit_notes in data:
-            if is_valid_credit_notes(credit_notes, start_date, end_date):
-                all_credit_notess.extend(process_credit_notes(credit_notes, user['username']))
+        for credit_note in data:
+            if is_valid_credit_note(credit_note, start_date, end_date):
+                all_credit_notes.extend(process_credit_note(credit_note, user['username']))
 
         logging.info(f"Page {page} processed for user {user['username']}.")
         page += 1
         time.sleep(0.5)  # Rate limiting
 
-    return all_credit_notess
+    return all_credit_notes
 
 def main():
     start_date, end_date = calculate_date_range()
     
     fieldnames = ['downloadSource','sourceUser','reference', 'company', 'firstName', 'lastName', 'projectName', 
-                  'channel', 'currencyCode','code', 'lineItemName', 
+                  'channel', 'currencyCode', 'lineItemStyleCode', 'lineItemName', 
                   'lineItemQty', 'lineItemUnitPrice', 'lineItemDiscount', 'invoiceDate']
     
+    file_path = r"C:\Users\Luis"
     file_name = f"credit_notes_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"
+    full_file_path = os.path.join(file_path, file_name)
 
-    env_file = os.getenv('GITHUB_ENV') 
-    with open(env_file, "a") as env_file:    
-        env_file.write(f"ENV_CUSTOM_DATE_FILE={file_name}")
- 
-
-    all_credit_notess = []
+    all_credit_notes = []
 
     # Process users in parallel
     with ThreadPoolExecutor(max_workers=4) as executor:
         results = executor.map(process_user, USERS)
-        for user_credit_notess in results:
-            all_credit_notess.extend(user_credit_notess)
+        for user_credit_notes in results:
+            all_credit_notes.extend(user_credit_notes)
 
     # Write all credit notes to a single CSV file
-    with open(file_name, mode='w', newline='', encoding='utf-8') as csv_file:
+    with open(full_file_path, mode='w', newline='', encoding='utf-8') as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
-        for credit_notes in all_credit_notess:
-            writer.writerow(credit_notes)
+        for credit_note in all_credit_notes:
+            writer.writerow(credit_note)
 
-    logging.info(f"Data successfully written to {file_name}")
+    logging.info(f"Data successfully written to {full_file_path}")
     logging.info(f"Date range used for filtering: Start: {start_date.strftime('%Y-%m-%d %H:%M:%S %Z')} - End: {end_date.strftime('%Y-%m-%d %H:%M:%S %Z')}")
 
 if __name__ == "__main__":
