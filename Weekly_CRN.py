@@ -92,7 +92,7 @@ def process_credit_note(credit_note, user_name):
             'projectName': credit_note.get('projectName'),
             'channel': credit_note.get('source'),
             'currencyCode': credit_note.get('currencyCode'),
-            'lineItemStyleCode': item.get('styleCode', ''),
+            'code':item.get('code',''),
             'lineItemName': item.get('name', ''),
             'lineItemQty': item.get('qty', ''),
             'lineItemUnitPrice': adjusted_unit_price,
@@ -136,7 +136,7 @@ def main():
     start_date, end_date = calculate_date_range()
     
     fieldnames = ['downloadSource','sourceUser','reference', 'company', 'firstName', 'lastName', 'projectName', 
-                  'channel', 'currencyCode', 'lineItemStyleCode', 'lineItemName', 
+                  'channel', 'currencyCode', 'code', 'lineItemName', 
                   'lineItemQty', 'lineItemUnitPrice', 'lineItemDiscount', 'invoiceDate']
     
     file_path = r"C:\Users\Luis"
