@@ -83,8 +83,7 @@ def process_credit_note(credit_note, user_name):
         adjusted_discount = round(discount * currency_rate, 2)
 
         results.append({
-            'sourceUser': user_name,
-            'downloadSource': f"Cin7_{user_name}",
+
             'reference': credit_note.get('reference'),
             'company': credit_note.get('company'),
             'firstName': credit_note.get('firstName'),
@@ -92,7 +91,7 @@ def process_credit_note(credit_note, user_name):
             'projectName': credit_note.get('projectName'),
             'channel': credit_note.get('source'),
             'currencyCode': credit_note.get('currencyCode'),
-            'code':item.get('code',''),
+            'lineItemStyleCode': item.get('styleCode', ''),
             'lineItemName': item.get('name', ''),
             'lineItemQty': item.get('qty', ''),
             'lineItemUnitPrice': adjusted_unit_price,
@@ -135,8 +134,8 @@ def process_user(user):
 def main():
     start_date, end_date = calculate_date_range()
     
-    fieldnames = ['downloadSource','sourceUser','reference', 'company', 'firstName', 'lastName', 'projectName', 
-                  'channel', 'currencyCode', 'code', 'lineItemName', 
+    fieldnames = ['reference', 'company', 'firstName', 'lastName', 'projectName', 
+                  'channel', 'currencyCode', 'lineItemStyleCode', 'lineItemName', 
                   'lineItemQty', 'lineItemUnitPrice', 'lineItemDiscount', 'invoiceDate']
     
     file_name = f"Credit_Notes_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"
