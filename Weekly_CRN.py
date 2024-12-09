@@ -139,7 +139,7 @@ def main():
                   'channel', 'currencyCode', 'code', 'lineItemName', 
                   'lineItemQty', 'lineItemUnitPrice', 'lineItemDiscount', 'invoiceDate']
     
-    file_name = f"Sales_Orders_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"
+    file_name = f"Credit_Notes_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"
     
     env_file = os.getenv('GITHUB_ENV') 
     with open(env_file, "a") as env_file:    
