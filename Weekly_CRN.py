@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Configuration
 BASE_URL =  'https://api.cin7.com/api/v1/CreditNotes'
-FIELDS = 'sourceUser,downloadSource,reference,company,firstName,lastName,projectName,source,currencyCode,currencyRate,lineItems,invoiceDate,invoiceNumber'
+FIELDS = 'sourceUser,downloadSource,reference,company,firstName,lastName,projectName,source,currencyCode,currencyRate,lineItems,createdDate,invoiceNumber'
 ROWS_PER_PAGE = 250
 
 ARL_KEY = os.environ["ARL_KEY"]
@@ -83,7 +83,8 @@ def process_credit_note(credit_note, user_name):
         adjusted_discount = round(discount * currency_rate, 2)
 
         results.append({
-
+            'sourceUser': user_name,
+            'downloadSource': f"Cin7_{user_name}",
             'reference': credit_note.get('reference'),
             'company': credit_note.get('company'),
             'firstName': credit_note.get('firstName'),
@@ -134,7 +135,7 @@ def process_user(user):
 def main():
     start_date, end_date = calculate_date_range()
     
-    fieldnames = ['reference', 'company', 'firstName', 'lastName', 'projectName', 
+    fieldnames = ['downloadSource','sourceUser','reference', 'company', 'firstName', 'lastName', 'projectName', 
                   'channel', 'currencyCode', 'lineItemStyleCode', 'lineItemName', 
                   'lineItemQty', 'lineItemUnitPrice', 'lineItemDiscount', 'invoiceDate']
     
