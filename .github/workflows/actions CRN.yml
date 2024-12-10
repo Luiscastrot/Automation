@@ -1,4 +1,4 @@
-name: run Weekly_CRN copy.py
+name:  run Weekly_CRN.py
 
 on:
   workflow_dispatch:
@@ -29,7 +29,7 @@ jobs:
           ARL_KEY: ${{ secrets.ARL_KEY }}
           ARNL_KEY: ${{ secrets.ARNL_KEY }}
           ARF_KEY: ${{ secrets.ARF_KEY }}
-        run: python run Weekly_CRN copy.py
+        run: python Weekly_CRN.py
 
       - name: Upload File to Dropbox
         uses: ./upload-dropbox-action
