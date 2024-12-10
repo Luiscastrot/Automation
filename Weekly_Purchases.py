@@ -140,13 +140,13 @@ def process_user(user):
     return all_purchase_orders
 
 def main():
-    start_date, end_date = calculate_date_range()
+    
     
     fieldnames = ['downloadSource', 'sourceUser', 'reference', 'company', 'branchId', 'currencyCode', 
     'lineItemcode', 'lineItemName','status','stage','projectName', 'lineItemQty', 'lineItemoption3', 'lineItemUnitPrice', 
     'lineItemDiscount', 'createdDate', 'estimatedDeliveryDate', 'fullyReceivedDate']
     
-    file_name = f"purchase_orders_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"
+    file_name = f"purchase_orders_LY.csv"
     env_file = os.getenv('GITHUB_ENV')
     if env_file:
         try:
@@ -171,7 +171,7 @@ def main():
             writer.writerow(purchase_order)
 
     logging.info(f"Data successfully written to {file_name}")
-    logging.info(f"Date range used for filtering: Start: {start_date.strftime('%Y-%m-%d %H:%M:%S %Z')} - End: {end_date.strftime('%Y-%m-%d %H:%M:%S %Z')}")
+
 
 if __name__ == "__main__":
     main()
