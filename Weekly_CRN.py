@@ -92,7 +92,7 @@ def process_credit_note(credit_note, user_name):
             'projectName': credit_note.get('projectName'),
             'channel': credit_note.get('source'),
             'currencyCode': credit_note.get('currencyCode'),
-            'lineItemStyleCode': item.get('styleCode', ''),
+            'lineItemcode': item.get('code', ''),
             'lineItemName': item.get('name', ''),
             'lineItemQty': item.get('qty', ''),
             'lineItemUnitPrice': adjusted_unit_price,
@@ -136,7 +136,7 @@ def main():
     start_date, end_date = calculate_date_range()
     
     fieldnames = ['downloadSource','sourceUser','reference', 'company', 'firstName', 'lastName', 'projectName', 
-                  'channel', 'currencyCode', 'lineItemStyleCode', 'lineItemName', 
+                  'channel', 'currencyCode', 'lineItemcode', 'lineItemName', 
                   'lineItemQty', 'lineItemUnitPrice', 'lineItemDiscount', 'completedDate']
     
     file_name = f"Credit_Notes_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"
