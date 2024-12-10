@@ -98,8 +98,8 @@ def process_purchase_order(purchase_order, user_name):
             'lineItemQty': item.get('qty', ''),
             'lineItemUnitPrice': adjusted_unit_price,
             'lineItemDiscount': adjusted_discount,
-            'fullyReceivedDate': fully_received_date.strftime('%d.%m.%Y') if fully_received_date else '',
-            'estimatedDeliveryDate': estimated_delivery_date.strftime('%d.%m.%Y') if estimated_delivery_date else ''
+            'estimatedDeliveryDate': estimated_delivery_date.strftime('%d.%m.%Y') if estimated_delivery_date else '',
+            'fullyReceivedDate': fully_received_date.strftime('%d.%m.%Y') if fully_received_date else ''
         })
     
     return results
@@ -138,7 +138,7 @@ def main():
     
     fieldnames = ['downloadSource','sourceUser','reference', 'company', 'firstName', 'lastName', 'projectName', 
                   'channel', 'currencyCode', 'lineItemStyleCode', 'lineItemName', 
-                  'lineItemQty', 'lineItemUnitPrice', 'lineItemDiscount','fullyReceivedDate', 'estimatedDeliveryDate']
+                  'lineItemQty', 'lineItemUnitPrice', 'lineItemDiscount','estimatedDeliveryDate','fullyReceivedDate']
     
     file_name = f"purchase_orders_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"
     env_file = os.getenv('GITHUB_ENV')
