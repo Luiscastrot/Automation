@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Configuration
 BASE_URL = 'https://api.cin7.com/api/v1/PurchaseOrders'
-FIELDS = 'id,reference,company,branchId,internalComments,currencyCode,currencyRate,lineItems,invoiceDate,fullyReceivedDate,createdDate,invoiceNumber'
+FIELDS = 'id,reference,company,branchId,internalComments,currencyCode,currencyRate,lineItems,estimatedDeliveryDate,fullyReceivedDate,createdDate,invoiceNumber'
 ROWS_PER_PAGE = 250
 
 ARL_KEY = os.environ["ARL_KEY"]
