@@ -66,13 +66,13 @@ def calculate_date_range():
     return last_saturday, last_friday
 
 def is_valid_purchase_order(purchase_order, start_date, end_date):
-    estimated_delivery_date = parse_date(purchase_order.get('invoiceDate'))
+    estimated_delivery_date = parse_date(purchase_order.get('createdDate'))
     return estimated_delivery_date and start_date <= estimated_delivery_date <= end_date
 
 def process_purchase_order(purchase_order, user_name):
     line_items = purchase_order.get('lineItems', [])
     currency_rate = float(purchase_order.get('currencyRate', 1))
-    estimated_delivery_date = parse_date(purchase_order.get('invoiceDate'))
+    estimated_delivery_date = parse_date(purchase_order.get('estimatedDeliveryDate'))
     fully_received_date = parse_date(purchase_order.get('fullyReceivedDate'))
     created_date = parse_date(purchase_order.get('createdDate'))
     results = []
@@ -96,8 +96,8 @@ def process_purchase_order(purchase_order, user_name):
             'lineItemoption3': item.get('option3', ''),
             'lineItemUnitPrice': adjusted_unit_price,
             'lineItemDiscount': adjusted_discount,
-            'createdDate' : created_date.strftime('%d.%m.%Y') if estimated_delivery_date else '',
-            'invoiceDate': estimated_delivery_date.strftime('%d.%m.%Y') if estimated_delivery_date else '',
+            'createdDate' : created_date.strftime('%d.%m.%Y') if created_date else '',
+            'estimatedDeliveryDate': estimated_delivery_date.strftime('%d.%m.%Y') if estimated_delivery_date else '',
             'fullyReceivedDate': fully_received_date.strftime('%d.%m.%Y') if fully_received_date else ''
         })
     
