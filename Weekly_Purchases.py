@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Configuration
 BASE_URL = 'https://api.cin7.com/api/v1/PurchaseOrders'
-FIELDS = 'id,reference,company,firstName,lastName,projectName,source,currencyCode,currencyRate,lineItems,completedDate,invoiceNumber'
+FIELDS = 'id,reference,company,firstName,lastName,projectName,source,currencyCode,currencyRate,lineItems,estimatedDeliveryDate,fullyReceivedDate,invoiceNumber'
 ROWS_PER_PAGE = 250
 
 ARL_KEY = os.environ["ARL_KEY"]
@@ -65,14 +65,15 @@ def calculate_date_range():
     last_friday = last_friday.replace(hour=23, minute=59, second=59, microsecond=999999)
     return last_saturday, last_friday
 
-def is_valid_credit_note(credit_note, start_date, end_date):
-    created_date = parse_date(credit_note.get('completedDate'))
-    return created_date and start_date <= created_date <= end_date
+def is_valid_purchase_order(purchase_order, start_date, end_date):
+    estimated_delivery_date = parse_date(purchase_order.get('estimatedDeliveryDate'))
+    return estimated_delivery_date and start_date <= estimated_delivery_date <= end_date
 
-def process_credit_note(credit_note, user_name):
-    line_items = credit_note.get('lineItems', [])
-    currency_rate = float(credit_note.get('currencyRate', 1))
-    created_date = parse_date(credit_note.get('completedDate'))
+def process_purchase_order(purchase_order, user_name):
+    line_items = purchase_order.get('lineItems', [])
+    currency_rate = float(purchase_order.get('currencyRate', 1))
+    estimated_delivery_date = parse_date(purchase_order.get('estimatedDeliveryDate'))
+    fully_received_date = parse_date(purchase_order.get('fullyReceivedDate'))
     
     results = []
     for item in line_items:
@@ -85,20 +86,20 @@ def process_credit_note(credit_note, user_name):
         results.append({
             'sourceUser': user_name,
             'downloadSource': f"Cin7_{user_name}",
-            'reference': credit_note.get('reference'),
-            'company': credit_note.get('company'),
-            'firstName': credit_note.get('firstName'),
-            'lastName': credit_note.get('lastName'),
-            'projectName': credit_note.get('projectName'),
-            'channel': credit_note.get('source'),
-            'currencyCode': credit_note.get('currencyCode'),
+            'reference': purchase_order.get('reference'),
+            'company': purchase_order.get('company'),
+            'firstName': purchase_order.get('firstName'),
+            'lastName': purchase_order.get('lastName'),
+            'projectName': purchase_order.get('projectName'),
+            'channel': purchase_order.get('source'),
+            'currencyCode': purchase_order.get('currencyCode'),
             'lineItemStyleCode': item.get('styleCode', ''),
             'lineItemName': item.get('name', ''),
             'lineItemQty': item.get('qty', ''),
             'lineItemUnitPrice': adjusted_unit_price,
             'lineItemDiscount': adjusted_discount,
-            'completedDate': created_date.strftime('%d.%m.%Y') if created_date else ''
-
+            'fullyReceivedDate': fully_received_date.strftime('%d.%m.%Y') if fully_received_date else '',
+            'estimatedDeliveryDate': estimated_delivery_date.strftime('%d.%m.%Y') if estimated_delivery_date else ''
         })
     
     return results
@@ -106,7 +107,7 @@ def process_credit_note(credit_note, user_name):
 def process_user(user):
     headers = get_auth_header(user['username'], user['key'])
     start_date, end_date = calculate_date_range()
-    all_credit_notes = []
+    all_purchase_orders = []
     page = 1
 
     while True:
@@ -122,42 +123,46 @@ def process_user(user):
             logging.info(f"No more data to fetch for user {user['username']}.")
             break
 
-        for credit_note in data:
-            if is_valid_credit_note(credit_note, start_date, end_date):
-                all_credit_notes.extend(process_credit_note(credit_note, user['username']))
+        for purchase_order in data:
+            if is_valid_purchase_order(purchase_order, start_date, end_date):
+                all_purchase_orders.extend(process_purchase_order(purchase_order, user['username']))
 
         logging.info(f"Page {page} processed for user {user['username']}.")
         page += 1
         time.sleep(0.5)  # Rate limiting
 
-    return all_credit_notes
+    return all_purchase_orders
 
 def main():
     start_date, end_date = calculate_date_range()
     
     fieldnames = ['downloadSource','sourceUser','reference', 'company', 'firstName', 'lastName', 'projectName', 
                   'channel', 'currencyCode', 'lineItemStyleCode', 'lineItemName', 
-                  'lineItemQty', 'lineItemUnitPrice', 'lineItemDiscount', 'completedDate']
+                  'lineItemQty', 'lineItemUnitPrice', 'lineItemDiscount','fullyReceivedDate', 'estimatedDeliveryDate']
     
-    file_name = f"Credit_Notes_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"
-    env_file = os.getenv('GITHUB_ENV') 
-    with open(env_file, "a") as env_file:    
-        env_file.write(f"ENV_CUSTOM_DATE_FILE={file_name}")
+    file_name = f"purchase_orders_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"
+    env_file = os.getenv('GITHUB_ENV')
+    if env_file:
+        try:
+            with open(env_file, "a") as env_file:    
+                env_file.write(f"ENV_CUSTOM_DATE_FILE={file_name}")
+        except IOError as e:
+            logging.error(f"Error writing to env file: {str(e)}")
  
-    all_credit_notes = []
+    all_purchase_orders = []
 
     # Process users in parallel
     with ThreadPoolExecutor(max_workers=4) as executor:
         results = executor.map(process_user, USERS)
-        for user_credit_notes in results:
-            all_credit_notes.extend(user_credit_notes)
+        for user_purchase_orders in results:
+            all_purchase_orders.extend(user_purchase_orders)
 
-    # Write all credit notes to a single CSV file
+    # Write all purchase orders to a single CSV file
     with open(file_name, mode='w', newline='', encoding='utf-8') as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
-        for credit_note in all_credit_notes:
-            writer.writerow(credit_note)
+        for purchase_order in all_purchase_orders:
+            writer.writerow(purchase_order)
 
     logging.info(f"Data successfully written to {file_name}")
     logging.info(f"Date range used for filtering: Start: {start_date.strftime('%Y-%m-%d %H:%M:%S %Z')} - End: {end_date.strftime('%Y-%m-%d %H:%M:%S %Z')}")
