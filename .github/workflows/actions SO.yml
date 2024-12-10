@@ -1,4 +1,4 @@
-name: run Weekly_CRN.py
+name:  run WeeklySO.py
 
 on:
   workflow_dispatch:
