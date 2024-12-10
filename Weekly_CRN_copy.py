@@ -97,7 +97,7 @@ def process_credit_note(credit_note, user_name):
             'lineItemQty': item.get('qty', ''),
             'lineItemUnitPrice': adjusted_unit_price,
             'lineItemDiscount': adjusted_discount,
-            'invoiceDate': created_date.strftime('%d.%m.%Y') if created_date else ''
+            'completedDate': created_date.strftime('%d.%m.%Y') if created_date else ''
 
         })
     
@@ -137,7 +137,7 @@ def main():
     
     fieldnames = ['downloadSource','sourceUser','reference', 'company', 'firstName', 'lastName', 'projectName', 
                   'channel', 'currencyCode', 'lineItemStyleCode', 'lineItemName', 
-                  'lineItemQty', 'lineItemUnitPrice', 'lineItemDiscount', 'invoiceDate']
+                  'lineItemQty', 'lineItemUnitPrice', 'lineItemDiscount', 'completedDate']
     
     file_name = f"Credit_Notes_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"
     env_file = os.getenv('GITHUB_ENV') 
