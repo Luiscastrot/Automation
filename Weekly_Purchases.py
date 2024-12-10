@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Configuration
 BASE_URL = 'https://api.cin7.com/api/v1/PurchaseOrders'
-FIELDS = 'id,reference,company,branchId,internalComments,currencyCode,currencyRate,lineItems,status,stage,projectName,estimatedDeliveryDate,fullyReceivedDate,createdDate,invoiceNumber'
+FIELDS = 'id,reference,company,branchId,internalComments,currencyCode,currencyRate,lineItems,status,stage,projectName,estimatedDeliveryDate,fullyReceivedDate,createdDate,invoiceNumber,isVoid'
 ROWS_PER_PAGE = 250
 
 ARL_KEY = os.environ["ARL_KEY"]
@@ -58,16 +58,20 @@ def parse_date(date_string):
 
 def calculate_date_range():
     today = datetime.datetime.now(pytz.utc)
-    days_since_friday = (today.weekday() - 4) % 7
-    last_friday = today - datetime.timedelta(days=days_since_friday)
-    last_saturday = last_friday - datetime.timedelta(days=6)
-    last_saturday = last_saturday.replace(hour=0, minute=0, second=0, microsecond=0)
-    last_friday = last_friday.replace(hour=23, minute=59, second=59, microsecond=999999)
-    return last_saturday, last_friday
+    twelve_months_ago = today - datetime.timedelta(days=365)
+    twelve_months_ago = twelve_months_ago.replace(hour=0, minute=0, second=0, microsecond=0)
+    today = today.replace(hour=23, minute=59, second=59, microsecond=999999)
+    return twelve_months_ago, today
 
 def is_valid_purchase_order(purchase_order, start_date, end_date):
-    estimated_delivery_date = parse_date(purchase_order.get('createdDate'))
-    return estimated_delivery_date and start_date <= estimated_delivery_date <= end_date
+    # Check if the purchase order is not void
+    is_void = purchase_order.get('isVoid', False)
+    if is_void:
+        return False
+
+    # Check if the created date is within the last 12 months
+    created_date = parse_date(purchase_order.get('createdDate'))
+    return created_date and start_date <= created_date <= end_date
 
 def process_purchase_order(purchase_order, user_name):
     line_items = purchase_order.get('lineItems', [])
