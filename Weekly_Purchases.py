@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Configuration
 BASE_URL = 'https://api.cin7.com/api/v1/PurchaseOrders'
-FIELDS = 'id,reference,company,branchId,internalComments,currencyCode,currencyRate,lineItems,estimatedDeliveryDate,fullyReceivedDate,createdDate,invoiceNumber'
+FIELDS = 'id,reference,company,branchId,internalComments,currencyCode,currencyRate,lineItems,status,stage,projectName,estimatedDeliveryDate,fullyReceivedDate,createdDate,invoiceNumber'
 ROWS_PER_PAGE = 250
 
 ARL_KEY = os.environ["ARL_KEY"]
@@ -92,6 +92,9 @@ def process_purchase_order(purchase_order, user_name):
             'currencyCode': purchase_order.get('currencyCode'),
             'lineItemcode': item.get('code', ''),
             'lineItemName': item.get('name', ''),
+            'status':item.get('status', ''),
+            'stage':item.get('stage', ''),
+            'projectName':item.get('projectName', ''),
             'lineItemQty': item.get('qty', ''),
             'lineItemoption3': item.get('option3', ''),
             'lineItemUnitPrice': adjusted_unit_price,
@@ -136,7 +139,7 @@ def main():
     start_date, end_date = calculate_date_range()
     
     fieldnames = ['downloadSource', 'sourceUser', 'reference', 'company', 'branchId', 'currencyCode', 
-    'lineItemcode', 'lineItemName', 'lineItemQty', 'lineItemoption3', 'lineItemUnitPrice', 
+    'lineItemcode', 'lineItemName','status','stage','projectName', 'lineItemQty', 'lineItemoption3', 'lineItemUnitPrice', 
     'lineItemDiscount', 'createdDate', 'estimatedDeliveryDate', 'fullyReceivedDate']
     
     file_name = f"purchase_orders_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"
