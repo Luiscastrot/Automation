@@ -10,8 +10,8 @@ credentials = f"{api_username}:{api_key}"
 encoded_credentials = base64.b64encode(credentials.encode('utf-8')).decode('utf-8')
 
 # API URL and credit note reference
-BASE_URL = 'https://api.cin7.com/api/v1/PurchaseOrders'
-credit_note_reference = "PO-ARL24-2469"  # Replace with your desired credit note reference
+BASE_URL = 'https://api.cin7.com/api/v1/Stock'
+credit_note_reference = ""  # Replace with your desired credit note reference
 
 # Headers
 headers = {
