@@ -21,12 +21,13 @@ ARL_KEY = os.environ["ARL_KEY"]
 ARIB_KEY = os.environ["ARIB_KEY"]
 ARNL_KEY = os.environ["ARNL_KEY"]
 ARF_KEY = os.environ["ARF_KEY"]
+
 # List of user credentials
 USERS = [
-    {"username":"AlbertRogerUK", "key": ARL_KEY},
-    {"username":"AlbertRogerFrancEU","key": ARF_KEY},
-    {"username":"AlbertRogerIberiEU", "key": ARIB_KEY},
-    {"username":"AlbertRogerNetheEU", "key": ARNL_KEY}
+    {"username": "AlbertRogerUK", "key": ARL_KEY},
+    {"username": "AlbertRogerFrancEU", "key": ARF_KEY},
+    {"username": "AlbertRogerIberiEU", "key": ARIB_KEY},
+    {"username": "AlbertRogerNetheEU", "key": ARNL_KEY}
 ]
 
 def get_auth_header(username, key):
@@ -57,13 +58,11 @@ def parse_date(date_string):
         return None
 
 def calculate_date_range():
-    today = datetime.datetime.now(pytz.utc)
-    days_since_friday = (today.weekday() - 4) % 7
-    last_friday = today - datetime.timedelta(days=days_since_friday)
-    last_saturday = last_friday - datetime.timedelta(days=6)
-    last_saturday = last_saturday.replace(hour=0, minute=0, second=0, microsecond=0)
-    last_friday = last_friday.replace(hour=23, minute=59, second=59, microsecond=999999)
-    return last_saturday, last_friday
+    # Set the start and end dates for the year 2024
+    start_date = datetime.datetime(2024, 1, 1, tzinfo=pytz.utc)  # January 1, 2024
+    end_date = datetime.datetime(2024, 12, 31, 23, 59, 59, 999999, tzinfo=pytz.utc)  # December 31, 2024
+
+    return start_date, end_date
 
 def is_valid_sales_orders(sales_orders, start_date, end_date):
     invoice_date = parse_date(sales_orders.get('invoiceDate'))
@@ -92,13 +91,12 @@ def process_sales_orders(sales_orders, user_name):
             'projectName': sales_orders.get('projectName'),
             'channel': sales_orders.get('source'),
             'currencyCode': sales_orders.get('currencyCode'),
-            'lineItemcode':item.get('code',''),
+            'lineItemcode': item.get('code', ''),
             'lineItemName': item.get('name', ''),
             'lineItemQty': item.get('qty', ''),
             'lineItemUnitPrice': adjusted_unit_price,
             'lineItemDiscount': adjusted_discount,
             'invoiceDate': invoice_date.strftime('%d.%m.%Y') if invoice_date else ''
-
         })
     
     return results
@@ -135,16 +133,18 @@ def process_user(user):
 def main():
     start_date, end_date = calculate_date_range()
     
-    fieldnames = ['downloadSource','sourceUser','reference', 'company', 'firstName', 'lastName', 'projectName', 
-                  'channel', 'currencyCode','lineItemcode', 'lineItemName', 
-                  'lineItemQty', 'lineItemUnitPrice', 'lineItemDiscount', 'invoiceDate']
+    fieldnames = ['downloadSource', 'sourceUser', 'reference', 'company', 
+                  'firstName', 'lastName', 'projectName', 
+                  'channel', 'currencyCode', 'lineItemcode', 
+                  'lineItemName', 'lineItemQty', 
+                  'lineItemUnitPrice', 'lineItemDiscount', 
+                  'invoiceDate']
     
     file_name = f"Sales_Orders_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"
 
     env_file = os.getenv('GITHUB_ENV') 
     with open(env_file, "a") as env_file:    
         env_file.write(f"ENV_CUSTOM_DATE_FILE={file_name}")
- 
 
     all_sales_orderss = []
 
@@ -154,7 +154,7 @@ def main():
         for user_sales_orderss in results:
             all_sales_orderss.extend(user_sales_orderss)
 
-    # Write all credit notes to a single CSV file
+    # Write all sales orders to a single CSV file
     with open(file_name, mode='w', newline='', encoding='utf-8') as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
