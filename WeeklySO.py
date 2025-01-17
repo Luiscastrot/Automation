@@ -95,7 +95,6 @@ def process_sales_orders(sales_orders, user_name):
 
         results.append({
             'sourceUser': abbreviated_user_name,
-            'downloadSource': f"Cin7_{abbreviated_user_name}",
             'reference': sales_orders.get('reference'),
             'invoiceNumber':sales_orders.get('invoiceNumber'),
             'customerOrderNo':sales_orders.get('customerOrderNo'),
