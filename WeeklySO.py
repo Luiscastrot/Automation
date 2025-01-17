@@ -148,7 +148,7 @@ def process_user(user):
 def main():
     start_date, end_date = calculate_date_range()
     
-    fieldnames = ['downloadSource','sourceUser','reference', 'invoiceNumber','customerOrderNo','company', 'firstName', 'lastName', 'projectName', 
+    fieldnames = ['sourceUser','reference', 'invoiceNumber','customerOrderNo','company', 'firstName', 'lastName', 'projectName', 
                   'channel', 'currencyCode','lineItemcode', 'lineItemName', 
                   'lineItemQty', 'lineItemUnitPrice', 'lineItemDiscount', 'invoiceDate']
     
