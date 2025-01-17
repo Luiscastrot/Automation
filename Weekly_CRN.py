@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Configuration
 BASE_URL =  'https://api.cin7.com/api/v1/CreditNotes'
-FIELDS = 'id,reference,company,firstName,lastName,projectName,source,currencyCode,currencyRate,lineItems,completedDate,invoiceNumber'
+FIELDS = 'id,reference,creditNoteNumber,salesReference,company,firstName,lastName,projectName,source,currencyCode,currencyRate,lineItems,completedDate,invoiceNumber'
 ROWS_PER_PAGE = 250
 
 ARL_KEY = os.environ["ARL_KEY"]
@@ -73,6 +73,17 @@ def process_credit_note(credit_note, user_name):
     line_items = credit_note.get('lineItems', [])
     currency_rate = float(credit_note.get('currencyRate', 1))
     created_date = parse_date(credit_note.get('completedDate'))
+
+     # Create a dictionary to map full names to abbreviations
+    user_abbreviations = {
+        "AlbertRogerUK": "ARL",
+        "AlbertRogerNetheEU": "ARNL",
+        "AlbertRogerFrancEU": "ARF",
+        "AlbertRogerIberiEU": "ARIB"
+    }
+    
+    # Get the abbreviation for the user_name, or use the original if not found
+    abbreviated_user_name = user_abbreviations.get(user_name, user_name)
     
     results = []
     for item in line_items:
@@ -83,9 +94,10 @@ def process_credit_note(credit_note, user_name):
         adjusted_discount = round(discount * currency_rate, 2)
 
         results.append({
-            'sourceUser': user_name,
-            'downloadSource': f"Cin7_{user_name}",
+            'sourceUser': abbreviated_user_name,
             'reference': credit_note.get('reference'),
+            'creditNoteNumber':credit_note.get('creditNoteNumber'),
+            'salesReference': credit_note('salesReference'),
             'company': credit_note.get('company'),
             'firstName': credit_note.get('firstName'),
             'lastName': credit_note.get('lastName'),
@@ -135,7 +147,7 @@ def process_user(user):
 def main():
     start_date, end_date = calculate_date_range()
     
-    fieldnames = ['downloadSource','sourceUser','reference', 'company', 'firstName', 'lastName', 'projectName', 
+    fieldnames = ['sourceUser','creditNoteNumber','salesReference','reference', 'company', 'firstName', 'lastName', 'projectName', 
                   'channel', 'currencyCode', 'lineItemcode', 'lineItemName', 
                   'lineItemQty', 'lineItemUnitPrice', 'lineItemDiscount', 'completedDate']
     
