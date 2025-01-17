@@ -94,7 +94,7 @@ def process_sales_orders(sales_orders, user_name):
         adjusted_discount = round(discount * currency_rate, 2)
 
         results.append({
-            'sourceUser': user_name,
+            'sourceUser': abbreviated_user_name,
             'downloadSource': f"Cin7_{abbreviated_user_name}",
             'reference': sales_orders.get('reference'),
             'invoiceNumber':sales_orders.get('invoiceNumber'),
