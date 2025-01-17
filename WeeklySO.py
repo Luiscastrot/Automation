@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Configuration
 BASE_URL = 'https://api.cin7.com/api/v1/SalesOrders'
-FIELDS = 'sourceUser,downloadSource,reference,company,firstName,lastName,projectName,source,currencyCode,currencyRate,lineItems,invoiceDate,invoiceNumber'
+FIELDS = 'sourceUser,downloadSource,reference,invoiceNumber,customerOrderNo,company,firstName,lastName,projectName,source,currencyCode,currencyRate,lineItems,invoiceDate,invoiceNumber'
 ROWS_PER_PAGE = 250
 
 ARL_KEY = os.environ["ARL_KEY"]
@@ -73,7 +73,18 @@ def process_sales_orders(sales_orders, user_name):
     line_items = sales_orders.get('lineItems', [])
     currency_rate = float(sales_orders.get('currencyRate', 1))
     invoice_date = parse_date(sales_orders.get('invoiceDate'))
+
+     # Create a dictionary to map full names to abbreviations
+    user_abbreviations = {
+        "AlbertRogerUK": "ARL",
+        "AlbertRogerNetheEU": "ARNL",
+        "AlbertRogerFrancEU": "ARF",
+        "AlbertRogerIberiEU": "ARIB"
+    }
     
+    # Get the abbreviation for the user_name, or use the original if not found
+    abbreviated_user_name = user_abbreviations.get(user_name, user_name)
+
     results = []
     for item in line_items:
         unit_price = float(item.get('unitPrice', 0))
@@ -84,8 +95,10 @@ def process_sales_orders(sales_orders, user_name):
 
         results.append({
             'sourceUser': user_name,
-            'downloadSource': f"Cin7_{user_name}",
+            'downloadSource': f"Cin7_{abbreviated_user_name}",
             'reference': sales_orders.get('reference'),
+            'invoiceNumber':sales_orders.get('invoiceNumber'),
+            'customerOrderNo':sales_orders.get('customerOrderNo'),
             'company': sales_orders.get('company'),
             'firstName': sales_orders.get('firstName'),
             'lastName': sales_orders.get('lastName'),
@@ -135,7 +148,7 @@ def process_user(user):
 def main():
     start_date, end_date = calculate_date_range()
     
-    fieldnames = ['downloadSource','sourceUser','reference', 'company', 'firstName', 'lastName', 'projectName', 
+    fieldnames = ['downloadSource','sourceUser','reference', 'invoiceNumber','customerOrderNo','company', 'firstName', 'lastName', 'projectName', 
                   'channel', 'currencyCode','lineItemcode', 'lineItemName', 
                   'lineItemQty', 'lineItemUnitPrice', 'lineItemDiscount', 'invoiceDate']
     
