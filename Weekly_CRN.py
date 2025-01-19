@@ -97,7 +97,7 @@ def process_credit_note(credit_note, user_name):
             'sourceUser': abbreviated_user_name,
             'reference': credit_note.get('reference'),
             'creditNoteNumber':credit_note.get('creditNoteNumber'),
-            'salesReference': credit_note('salesReference'),
+            'salesReference': credit_note.get('salesReference'),
             'company': credit_note.get('company'),
             'firstName': credit_note.get('firstName'),
             'lastName': credit_note.get('lastName'),
