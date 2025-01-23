@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Configuration
 BASE_URL =  'https://api.cin7.com/api/v1/CreditNotes'
-FIELDS = 'id,reference,creditNoteNumber,salesReference,company,firstName,lastName,projectName,source,currencyCode,currencyRate,lineItems,completedDate,invoiceNumber'
+FIELDS = 'id,reference,creditNoteNumber,salesReference,createdDate,company,firstName,lastName,projectName,source,currencyCode,currencyRate,lineItems,discountTotal,completedDate,invoiceNumber'
 ROWS_PER_PAGE = 250
 
 ARL_KEY = os.environ["ARL_KEY"]
@@ -89,15 +89,18 @@ def process_credit_note(credit_note, user_name):
     for item in line_items:
         unit_price = float(item.get('unitPrice', 0))
         discount = float(item.get('discount', 0))
+        discount_total = float(item.get('discountTotal',0))
         
         adjusted_unit_price = round(unit_price * currency_rate, 2)
         adjusted_discount = round(discount * currency_rate, 2)
+        adjusted_discount_total = round(discount_total*currency_rate,2)
 
         results.append({
             'sourceUser': abbreviated_user_name,
             'reference': credit_note.get('reference'),
             'creditNoteNumber':credit_note.get('creditNoteNumber'),
             'salesReference': credit_note.get('salesReference'),
+            'createdDate': item.get('createdDate',''),
             'company': credit_note.get('company'),
             'firstName': credit_note.get('firstName'),
             'lastName': credit_note.get('lastName'),
@@ -107,8 +110,10 @@ def process_credit_note(credit_note, user_name):
             'lineItemcode': item.get('code', ''),
             'lineItemName': item.get('name', ''),
             'lineItemQty': item.get('qty', ''),
+            'lineItemoption3': item.get('option3',''),
             'lineItemUnitPrice': adjusted_unit_price,
             'lineItemDiscount': adjusted_discount,
+            'discountTotal': adjusted_discount_total,
             'completedDate': created_date.strftime('%d.%m.%Y') if created_date else ''
 
         })
@@ -147,9 +152,8 @@ def process_user(user):
 def main():
     start_date, end_date = calculate_date_range()
     
-    fieldnames = ['sourceUser','creditNoteNumber','salesReference','reference', 'company', 'firstName', 'lastName', 'projectName', 
-                  'channel', 'currencyCode', 'lineItemcode', 'lineItemName', 
-                  'lineItemQty', 'lineItemUnitPrice', 'lineItemDiscount', 'completedDate']
+    fieldnames = ['sourceUser','reference','creditNoteNumber','salesReference','createdDate', 'company', 'firstName', 'lastName', 'projectName', 
+                  'channel', 'currencyCode', 'lineItemcode', 'lineItemName','lineItemQty','lineItemoption3', 'lineItemUnitPrice', 'lineItemDiscount', 'discountTotal','completedDate']
     
     file_name = f"Credit_Notes_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"
     env_file = os.getenv('GITHUB_ENV') 
