@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Configuration
 BASE_URL = 'https://api.cin7.com/api/v1/SalesOrders'
-FIELDS = 'sourceUser,downloadSource,reference,invoiceNumber,customerOrderNo,company,firstName,lastName,projectName,source,currencyCode,currencyRate,lineItems,invoiceDate,invoiceNumber'
+FIELDS = 'id,reference,creditNoteNumber,salesReference,createdDate,company,firstName,lastName,projectName,source,currencyCode,currencyRate,lineItems,discountTotal,completedDate,invoiceNumber'
 ROWS_PER_PAGE = 250
 
 ARL_KEY = os.environ["ARL_KEY"]
@@ -89,15 +89,18 @@ def process_sales_orders(sales_orders, user_name):
     for item in line_items:
         unit_price = float(item.get('unitPrice', 0))
         discount = float(item.get('discount', 0))
+        discount_total = float(item.get('discountTotal',0))
         
         adjusted_unit_price = round(unit_price * currency_rate, 2)
         adjusted_discount = round(discount * currency_rate, 2)
+        adjusted_discount_total = round(discount_total*currency_rate,2)
 
         results.append({
             'sourceUser': abbreviated_user_name,
             'reference': sales_orders.get('reference'),
             'invoiceNumber':sales_orders.get('invoiceNumber'),
             'customerOrderNo':sales_orders.get('customerOrderNo'),
+            'createdDate': item.get('createdDate',''),
             'company': sales_orders.get('company'),
             'firstName': sales_orders.get('firstName'),
             'lastName': sales_orders.get('lastName'),
@@ -107,8 +110,10 @@ def process_sales_orders(sales_orders, user_name):
             'lineItemcode':item.get('code',''),
             'lineItemName': item.get('name', ''),
             'lineItemQty': item.get('qty', ''),
+            'lineItemoption3': item.get('option3',''),
             'lineItemUnitPrice': adjusted_unit_price,
             'lineItemDiscount': adjusted_discount,
+            'discountTotal': adjusted_discount_total,            
             'invoiceDate': invoice_date.strftime('%d.%m.%Y') if invoice_date else ''
 
         })
@@ -147,9 +152,8 @@ def process_user(user):
 def main():
     start_date, end_date = calculate_date_range()
     
-    fieldnames = ['sourceUser','reference', 'invoiceNumber','customerOrderNo','company', 'firstName', 'lastName', 'projectName', 
-                  'channel', 'currencyCode','lineItemcode', 'lineItemName', 
-                  'lineItemQty', 'lineItemUnitPrice', 'lineItemDiscount', 'invoiceDate']
+    fieldnames = ['sourceUser','reference', 'invoiceNumber','customerOrderNo','createdDate','company', 'firstName', 'lastName', 'projectName', 
+                  'channel', 'currencyCode','lineItemcode', 'lineItemName','lineItemQty','lineItemoption3', 'lineItemUnitPrice', 'lineItemDiscount', 'discountTotal','invoiceDate']
     
     file_name = f"Sales_Orders_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"
 
