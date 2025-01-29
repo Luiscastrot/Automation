@@ -76,7 +76,6 @@ def is_valid_purchase_order(purchase_order, start_date, end_date):
 
 def process_purchase_order(purchase_order, user_name):
     line_items = purchase_order.get('lineItems', [])
-    currency_rate = float(purchase_order.get('currencyRate', 1))
     estimated_delivery_date = parse_date(purchase_order.get('estimatedDeliveryDate'))
     fully_received_date = parse_date(purchase_order.get('fullyReceivedDate'))
     created_date = parse_date(purchase_order.get('createdDate'))
@@ -94,12 +93,7 @@ def process_purchase_order(purchase_order, user_name):
 
     results = []
     for item in line_items:
-        unit_price = float(item.get('unitPrice', 0))
-        discount = float(item.get('discount', 0))
-        
-        adjusted_unit_price = round(unit_price * currency_rate, 2)
-        adjusted_discount = round(discount * currency_rate, 2)
-
+       
         results.append({
             'sourceUser': abbreviated_user_name,
             'reference': purchase_order.get('reference'),
