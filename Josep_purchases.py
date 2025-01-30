@@ -65,7 +65,7 @@ def calculate_date_range():
     return twelve_months_ago, today
 
 def is_valid_purchase_order(purchase_order, start_date, end_date):
-    # Check if the purchase order is not void
+    # Check if the purchase order is void
     is_void = purchase_order.get('isVoid', True)
     if is_void:
         return True
@@ -81,12 +81,13 @@ def process_purchase_order(purchase_order, user_name):
     created_date = parse_date(purchase_order.get('createdDate'))
     stage = purchase_order.get('stage', '')
     
-    
-    # Skip if stage is not blank (even after stripping spaces)
-    if stage.strip():  # This checks if `stage` has any meaningful content
-        logging.info(f"Skipping purchase order with non-blank stage: '{stage}'")
+    # Log raw and stripped stage values for debugging
+    logging.debug(f"Raw stage: '{stage}', Stripped stage: '{stage.strip()}'")
+
+    # Skip orders where stage is not blank or "void"
+    if stage.strip() and stage.strip().lower() != "void":
+        logging.info(f"Skipping purchase order with stage: '{stage}'")
         return []
-     
      # Create a dictionary to map full names to abbreviations
     user_abbreviations = {
         "AlbertRogerUK": "ARL",
