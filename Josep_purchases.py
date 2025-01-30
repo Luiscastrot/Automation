@@ -80,9 +80,13 @@ def process_purchase_order(purchase_order, user_name):
     fully_received_date = parse_date(purchase_order.get('fullyReceivedDate'))
     created_date = parse_date(purchase_order.get('createdDate'))
     stage = purchase_order.get('stage', '')
-
-    if stage != '' and stage is not None:
+    
+    
+    # Skip if stage is not blank (even after stripping spaces)
+    if stage.strip():  # This checks if `stage` has any meaningful content
+        logging.info(f"Skipping purchase order with non-blank stage: '{stage}'")
         return []
+     
      # Create a dictionary to map full names to abbreviations
     user_abbreviations = {
         "AlbertRogerUK": "ARL",
