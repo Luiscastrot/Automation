@@ -79,7 +79,10 @@ def process_purchase_order(purchase_order, user_name):
     estimated_delivery_date = parse_date(purchase_order.get('estimatedDeliveryDate'))
     fully_received_date = parse_date(purchase_order.get('fullyReceivedDate'))
     created_date = parse_date(purchase_order.get('createdDate'))
+    stage = purchase_order.get('stage', '')
 
+    if stage != '':  # Only process orders with blank stage
+        return []
      # Create a dictionary to map full names to abbreviations
     user_abbreviations = {
         "AlbertRogerUK": "ARL",
@@ -103,10 +106,11 @@ def process_purchase_order(purchase_order, user_name):
             'lineItemcode': item.get('code', ''),
             'lineItemName': item.get('name', ''),
             'status':purchase_order.get('status', ''),
+            'stage': stage,
             'lineItemQty': item.get('qty', ''),
-            'createdDate' : created_date.strftime('%d.%m.%Y') if created_date else '',
-            'estimatedDeliveryDate': estimated_delivery_date.strftime('%d.%m.%Y') if estimated_delivery_date else '',
-            'fullyReceivedDate': fully_received_date.strftime('%d.%m.%Y') if fully_received_date else ''
+            'createdDate' : created_date.strftime('%d/%m/%Y') if created_date else '',
+            'estimatedDeliveryDate': estimated_delivery_date.strftime('%d/%m/%Y') if estimated_delivery_date else '',
+            'fullyReceivedDate': fully_received_date.strftime('%d/%m/%Y') if fully_received_date else ''
         })
     
     return results

@@ -103,7 +103,7 @@ def process_purchase_order(purchase_order, user_name):
             'lineItemUnitPrice': adjusted_unit_price,
             'lineItemDiscount': adjusted_discount,
             'lineItemoption3': item.get('option3', ''),
-            'invoiceDate' : created_date.strftime('%d.%m.%Y') if created_date else ''
+            'invoiceDate' : created_date.strftime('%d/%m/%Y') if created_date else ''
         })
     
     return results

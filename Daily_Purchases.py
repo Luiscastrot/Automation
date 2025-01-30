@@ -103,9 +103,9 @@ def process_purchase_order(purchase_order, user_name):
             'lineItemoption3': item.get('option3', ''),
             'lineItemUnitPrice': adjusted_unit_price,
             'lineItemDiscount': adjusted_discount,
-            'createdDate' : created_date.strftime('%d.%m.%Y') if created_date else '',
-            'estimatedDeliveryDate': estimated_delivery_date.strftime('%d.%m.%Y') if estimated_delivery_date else '',
-            'fullyReceivedDate': fully_received_date.strftime('%d.%m.%Y') if fully_received_date else ''
+            'createdDate' : created_date.strftime('%d/%m/%Y') if created_date else '',
+            'estimatedDeliveryDate': estimated_delivery_date.strftime('%d/%m/%Y') if estimated_delivery_date else '',
+            'fullyReceivedDate': fully_received_date.strftime('%d/%m/%Y') if fully_received_date else ''
         })
     
     return results
