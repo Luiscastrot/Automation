@@ -81,7 +81,7 @@ def process_purchase_order(purchase_order, user_name):
     created_date = parse_date(purchase_order.get('createdDate'))
     stage = purchase_order.get('stage', '')
 
-    if stage != '':  # Only process orders with blank stage
+    if stage != '' and stage is not None:
         return []
      # Create a dictionary to map full names to abbreviations
     user_abbreviations = {
