@@ -65,10 +65,10 @@ def calculate_date_range():
     return twelve_months_ago, today
 
 def is_valid_purchase_order(purchase_order, start_date, end_date):
-    # Check if the purchase order is void
-    is_void = purchase_order.get('isVoid', True)
-    if is_void:
-        return True
+    # Check if the purchase order is NOT void
+    is_not_void = not purchase_order.get('isVoid', False)
+    if is_not_void:
+        return False  # Ignore if it's not void
 
     # Check if the created date is within the last 12 months
     created_date = parse_date(purchase_order.get('createdDate'))
