@@ -73,7 +73,7 @@ def is_valid_purchase_order(purchase_order, start_date, end_date):
     # Check if the created date is within the last 12 months
     created_date = parse_date(purchase_order.get('createdDate'))
     return created_date and start_date <= created_date <= end_date
-
+    
 def process_purchase_order(purchase_order, user_name):
     line_items = purchase_order.get('lineItems', [])
     estimated_delivery_date = parse_date(purchase_order.get('estimatedDeliveryDate'))
