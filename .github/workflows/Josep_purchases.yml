@@ -29,7 +29,7 @@ jobs:
           ARL_KEY: ${{ secrets.ARL_KEY }}
           ARNL_KEY: ${{ secrets.ARNL_KEY }}
           ARF_KEY: ${{ secrets.ARF_KEY }}
-        run: python Daily_Purchases.py
+        run: python Purchases/Daily_Purchases.py
 
       - name: Upload File to Dropbox
         uses: ./upload-dropbox-action
