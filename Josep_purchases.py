@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Configuration
 BASE_URL = 'https://api.cin7.com/api/v1/PurchaseOrders'
-FIELDS = 'reference,company,currencyCode,lineItems,status,estimatedDeliveryDate,fullyReceivedDate,createdDate,invoiceNumber,isVoid'
+FIELDS = 'id,reference,company,currencyCode,lineItems,status,estimatedDeliveryDate,fullyReceivedDate,createdDate,invoiceNumber,isVoid'
 ROWS_PER_PAGE = 250
 
 ARL_KEY = os.environ["ARL_KEY"]
@@ -97,7 +97,6 @@ def process_purchase_order(purchase_order, user_name):
     }
     
     # Get the abbreviation for the user_name, or use the original if not found
-    user_name = user_name.strip()
     abbreviated_user_name = user_abbreviations.get(user_name, user_name)
 
     results = []
