@@ -84,10 +84,14 @@ def process_purchase_order(purchase_order, user_name):
     # Log raw and stripped stage values for debugging
     logging.debug(f"Raw stage: '{stage}', Stripped stage: '{stage.strip()}'")
 
-    # Skip orders where stage is not blank or "void"
-    if stage.strip() and stage.strip().lower() != "void":
+    # Define the stages to ignore
+    ignored_stages = {'Received', 'Dispatched', 'Completed', 'New'}
+
+    # Skip orders where stage is in the ignored list or not blank
+    if stage.strip() in ignored_stages or (stage.strip() and stage.strip().lower() != "void"):
         logging.info(f"Skipping purchase order with stage: '{stage}'")
         return []
+
      # Create a dictionary to map full names to abbreviations
     user_abbreviations = {
         "AlbertRogerUK": "ARL",
