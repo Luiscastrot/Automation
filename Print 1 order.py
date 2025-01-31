@@ -22,7 +22,7 @@ def get_auth_header(username, key):
     }
 
 def get_sales_order(order_id, headers):
-    url = f'{BASE_URL}/PurchaseOrders//{order_id}'
+    url = f'{BASE_URL}/Stock?barcode//{order_id}'
     try:
         response = requests.get(url, headers=headers)
         response.raise_for_status()
