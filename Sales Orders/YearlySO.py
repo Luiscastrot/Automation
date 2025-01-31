@@ -13,8 +13,8 @@ from concurrent.futures import ThreadPoolExecutor
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Configuration
-BASE_URL = 'https://api.cin7.com/api/v1/CreditNotes'
-FIELDS = 'id,reference,company,firstName,lastName,projectName,source,currencyCode,currencyRate,lineItems,completedDate,invoiceNumber'
+BASE_URL = 'https://api.cin7.com/api/v1/SalesOrders'
+FIELDS = 'id,reference,customerOrderNo,salesReference,invoiceDate,createdDate,company,firstName,lastName,projectName,source,currencyCode,currencyRate,lineItems,discountTotal,completedDate,invoiceNumber'
 ROWS_PER_PAGE = 250
 
 ARL_KEY = os.environ["ARL_KEY"]
@@ -60,43 +60,61 @@ def parse_date(date_string):
 def calculate_date_range():
     # Set the start and end dates for the year 2024
     start_date = datetime.datetime(2025, 1, 1, tzinfo=pytz.utc)  # (Year, Month, Day, Hour, Minute, Second, ...,)
-    end_date = datetime.datetime(2025, 1, 10, 23, 59, 59, 999999, tzinfo=pytz.utc)  # (Year, Month, Day, Hour, Minute, Second, ...,)
+    end_date = datetime.datetime(2025, 1, 24, 23, 59, 59, 999999, tzinfo=pytz.utc)  # (Year, Month, Day, Hour, Minute, Second, ...,)
 
     return start_date, end_date
 
-def is_valid_credit_note(credit_note, start_date, end_date):
-    created_date = parse_date(credit_note.get('completedDate'))
-    return created_date and start_date <= created_date <= end_date
+def is_valid_sales_orders(sales_orders, start_date, end_date):
+    invoice_date = parse_date(sales_orders.get('invoiceDate'))
+    return invoice_date and start_date <= invoice_date <= end_date
 
-def process_credit_note(credit_note, user_name):
-    line_items = credit_note.get('lineItems', [])
-    currency_rate = float(credit_note.get('currencyRate', 1))
-    created_date = parse_date(credit_note.get('completedDate'))
+def process_sales_orders(sales_orders, user_name):
+    line_items = sales_orders.get('lineItems', [])
+    currency_rate = float(sales_orders.get('currencyRate', 1))
+    invoice_date = parse_date(sales_orders.get('invoiceDate'))
     
+
+    # Create a dictionary to map full names to abbreviations
+    user_abbreviations = {
+        "AlbertRogerUK": "ARL",
+        "AlbertRogerNetheEU": "ARNL",
+        "AlbertRogerFrancEU": "ARF",
+        "AlbertRogerIberiEU": "ARIB"
+    }
+    
+    # Get the abbreviation for the user_name, or use the original if not found
+    abbreviated_user_name = user_abbreviations.get(user_name, user_name)
+
     results = []
     for item in line_items:
         unit_price = float(item.get('unitPrice', 0))
         discount = float(item.get('discount', 0))
-        
+        discount_total = float(item.get('discountTotal',0))
+
         adjusted_unit_price = round(unit_price * currency_rate, 2)
         adjusted_discount = round(discount * currency_rate, 2)
+        adjusted_discount_total = round(discount_total*currency_rate,2)
 
         results.append({
-            'sourceUser': user_name,
-            'downloadSource': f"Cin7_{user_name}",
-            'reference': credit_note.get('reference'),
-            'company': credit_note.get('company'),
-            'firstName': credit_note.get('firstName'),
-            'lastName': credit_note.get('lastName'),
-            'projectName': credit_note.get('projectName'),
-            'channel': credit_note.get('source'),
-            'currencyCode': credit_note.get('currencyCode'),
+            'sourceUser': abbreviated_user_name,
+            'reference': sales_orders.get('reference'),
+            'invoiceNumber':sales_orders.get('invoiceNumber'),
+            'customerOrderNo':sales_orders.get('customerOrderNo'),
+            'createdDate': item.get('createdDate',''),
+            'company': sales_orders.get('company'),
+            'firstName': sales_orders.get('firstName'),
+            'lastName': sales_orders.get('lastName'),
+            'projectName': sales_orders.get('projectName'),
+            'channel': sales_orders.get('source'),
+            'currencyCode': sales_orders.get('currencyCode'),
             'lineItemcode': item.get('code', ''),
             'lineItemName': item.get('name', ''),
             'lineItemQty': item.get('qty', ''),
+            'lineItemoption3': item.get('option3',''),
             'lineItemUnitPrice': adjusted_unit_price,
             'lineItemDiscount': adjusted_discount,
-            'completedDate': created_date.strftime('%d/%m/%Y') if created_date else ''
+            'discountTotal': adjusted_discount_total,            
+            'invoiceDate': invoice_date.strftime('%d/%m/%Y') if invoice_date else ''
         })
     
     return results
@@ -104,7 +122,7 @@ def process_credit_note(credit_note, user_name):
 def process_user(user):
     headers = get_auth_header(user['username'], user['key'])
     start_date, end_date = calculate_date_range()
-    all_credit_notes = []
+    all_sales_orderss = []
     page = 1
 
     while True:
@@ -120,46 +138,43 @@ def process_user(user):
             logging.info(f"No more data to fetch for user {user['username']}.")
             break
 
-        for credit_note in data:
-            if is_valid_credit_note(credit_note, start_date, end_date):
-                all_credit_notes.extend(process_credit_note(credit_note, user['username']))
+        for sales_orders in data:
+            if is_valid_sales_orders(sales_orders, start_date, end_date):
+                all_sales_orderss.extend(process_sales_orders(sales_orders, user['username']))
 
         logging.info(f"Page {page} processed for user {user['username']}.")
         page += 1
         time.sleep(0.5)  # Rate limiting
 
-    return all_credit_notes
+    return all_sales_orderss
 
 def main():
     start_date, end_date = calculate_date_range()
     
-    fieldnames = ['downloadSource', 'sourceUser', 'reference', 'company', 
-                  'firstName', 'lastName', 'projectName', 
-                  'channel', 'currencyCode', 'lineItemcode', 
-                  'lineItemName', 'lineItemQty', 
-                  'lineItemUnitPrice', 'lineItemDiscount', 
-                  'completedDate']
+    fieldnames = ['sourceUser','reference', 'invoiceNumber','customerOrderNo','createdDate','company', 'firstName', 'lastName', 'projectName', 
+                  'channel', 'currencyCode','lineItemcode', 'lineItemName','lineItemQty','lineItemoption3', 'lineItemUnitPrice', 'lineItemDiscount', 'discountTotal','invoiceDate']
     
-    file_name = f"Credit_Notes_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"
     
+    file_name = f"Sales_Orders_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"
+
     env_file = os.getenv('GITHUB_ENV') 
     with open(env_file, "a") as env_file:    
         env_file.write(f"ENV_CUSTOM_DATE_FILE={file_name}")
 
-    all_credit_notes = []
+    all_sales_orderss = []
 
     # Process users in parallel
     with ThreadPoolExecutor(max_workers=4) as executor:
         results = executor.map(process_user, USERS)
-        for user_credit_notes in results:
-            all_credit_notes.extend(user_credit_notes)
+        for user_sales_orderss in results:
+            all_sales_orderss.extend(user_sales_orderss)
 
-    # Write all credit notes to a single CSV file
+    # Write all sales orders to a single CSV file
     with open(file_name, mode='w', newline='', encoding='utf-8') as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
-        for credit_note in all_credit_notes:
-            writer.writerow(credit_note)
+        for sales_orders in all_sales_orderss:
+            writer.writerow(sales_orders)
 
     logging.info(f"Data successfully written to {file_name}")
     logging.info(f"Date range used for filtering: Start: {start_date.strftime('%Y-%m-%d %H:%M:%S %Z')} - End: {end_date.strftime('%Y-%m-%d %H:%M:%S %Z')}")
