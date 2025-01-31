@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Configuration
 BASE_URL = 'https://api.cin7.com/api/v1/PurchaseOrders'
-FIELDS = 'id,reference,stage,company,currencyCode,lineItems,status,estimatedDeliveryDate,fullyReceivedDate,createdDate,invoiceNumber,isVoid'
+FIELDS = 'id,reference,Stage,company,currencyCode,lineItems,status,estimatedDeliveryDate,fullyReceivedDate,createdDate,invoiceNumber,isVoid'
 ROWS_PER_PAGE = 250
 
 ARL_KEY = os.environ["ARL_KEY"]
@@ -79,7 +79,7 @@ def process_purchase_order(purchase_order, user_name):
     estimated_delivery_date = parse_date(purchase_order.get('estimatedDeliveryDate'))
     fully_received_date = parse_date(purchase_order.get('fullyReceivedDate'))
     created_date = parse_date(purchase_order.get('createdDate'))
-    stage = purchase_order.get('stage', '')
+    stage = purchase_order.get('Stage', '')
     
     # Log raw and stripped stage values for debugging
     logging.debug(f"Raw stage: '{stage}', Stripped stage: '{stage.strip()}'")
