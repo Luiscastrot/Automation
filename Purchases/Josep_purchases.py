@@ -114,7 +114,7 @@ def process_purchase_order(purchase_order, user_name):
             'lineItemcode': item.get('code', ''),
             'lineItemName': item.get('name', ''),
             'status':purchase_order.get('status', ''),
-            'stage': stage,
+            'Stage': stage,
             'lineItemQty': item.get('qty', ''),
             'createdDate' : created_date.strftime('%d/%m/%Y') if created_date else '',
             'estimatedDeliveryDate': estimated_delivery_date.strftime('%d/%m/%Y') if estimated_delivery_date else '',
@@ -156,7 +156,7 @@ def main():
     
     
     fieldnames = ['sourceUser', 'reference', 'company', 'currencyCode', 
-    'lineItemcode', 'lineItemName','status','stage' 'lineItemQty','createdDate', 'estimatedDeliveryDate', 'fullyReceivedDate']
+    'lineItemcode', 'lineItemName','status','Stage' 'lineItemQty','createdDate', 'estimatedDeliveryDate', 'fullyReceivedDate']
     
     file_name = f"purchase_orders_LY.csv"
     env_file = os.getenv('GITHUB_ENV')
