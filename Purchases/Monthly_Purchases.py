@@ -57,16 +57,20 @@ def parse_date(date_string):
         return None
 
 def calculate_date_range():
-    # Set the start and end dates for the year 2024
-    start_date = datetime.datetime(2025, 1, 1, tzinfo=pytz.utc)  # (Year, Month, Day, Hour, Minute, Second, ...,)
-    end_date = datetime.datetime(2025, 1, 31, 23, 59, 59, 999999, tzinfo=pytz.utc)  # (Year, Month, Day, Hour, Minute, Second, ...,)
-
+    # Set the start and end dates for January 2025
+    start_date = datetime.datetime(2025, 1, 1, tzinfo=pytz.utc)
+    end_date = datetime.datetime(2025, 1, 31, 23, 59, 59, 999999, tzinfo=pytz.utc)
     return start_date, end_date
 
 def is_valid_purchase_order(purchase_order, start_date, end_date):
     is_void = purchase_order.get('isVoid', False)
     if is_void:
         return False
+    
+    invoice_date = parse_date(purchase_order.get('invoiceDate'))
+    
+    # Check if invoice date is within the specified range
+    return invoice_date and start_date <= invoice_date <= end_date
     
 def process_purchase_order(purchase_order, user_name):
     line_items = purchase_order.get('lineItems', [])
