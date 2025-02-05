@@ -67,8 +67,7 @@ def is_valid_purchase_order(purchase_order, start_date, end_date):
     is_void = purchase_order.get('isVoid', False)
     if is_void:
         return False
-    return True  # Add this line to return True for valid purchase orders
-
+    
 def process_purchase_order(purchase_order, user_name):
     line_items = purchase_order.get('lineItems', [])
     currency_rate = float(purchase_order.get('currencyRate', 1))
