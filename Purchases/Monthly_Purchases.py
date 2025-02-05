@@ -64,10 +64,10 @@ def calculate_date_range():
     return start_date, end_date
 
 def is_valid_purchase_order(purchase_order, start_date, end_date):
-    # Check if the purchase order is not void
     is_void = purchase_order.get('isVoid', False)
     if is_void:
         return False
+    return True  # Add this line to return True for valid purchase orders
 
 def process_purchase_order(purchase_order, user_name):
     line_items = purchase_order.get('lineItems', [])
@@ -83,24 +83,27 @@ def process_purchase_order(purchase_order, user_name):
         adjusted_discount = round(discount * currency_rate, 2)
 
         results.append({
-            'sourceUser': user_name,
+        'sourceUser': user_name,
             'downloadSource': f"Cin7_{user_name}",
             'reference': purchase_order.get('reference'),
             'company': purchase_order.get('company'),
-            'firstName': purchase_order.get('firstName'),
-            'lastName': purchase_order.get('lastName'),
-            'projectName': purchase_order.get('projectName'),
-            'channel': purchase_order.get('source'),
-            'currencyCode': purchase_order.get('currencyCode'),
+            'branchId': purchase_order.get('branchId', ''),  # Added branchId
+            'status': purchase_order.get('status', ''),  # Added status
+            'stage': purchase_order.get('stage', ''),  # Added stage
+            'firstName': purchase_order.get('firstName', ''),
+            'lastName': purchase_order.get('lastName', ''),
+            'projectName': purchase_order.get('projectName', ''),
+            'channel': purchase_order.get('source', ''),
+            'currencyCode': purchase_order.get('currencyCode', ''),
             'lineItemcode': item.get('code', ''),
             'lineItemName': item.get('name', ''),
             'lineItemQty': item.get('qty', ''),
             'lineItemoption3': item.get('option3', ''),
             'lineItemUnitPrice': adjusted_unit_price,
             'lineItemDiscount': adjusted_discount,
-            'invoiceDate' : invoice_date.strftime('%d/%m/%Y') if invoice_date else ''
+            'invoiceDate': invoice_date.strftime('%d/%m/%Y') if invoice_date else ''
         })
-    
+        
     return results
 
 def process_user(user):
