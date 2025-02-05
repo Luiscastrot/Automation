@@ -57,11 +57,11 @@ def parse_date(date_string):
         return None
 
 def calculate_date_range():
-    today = datetime.datetime.now(pytz.utc)
-    twelve_months_ago = today - datetime.timedelta(days=365)
-    twelve_months_ago = twelve_months_ago.replace(hour=0, minute=0, second=0, microsecond=0)
-    today = today.replace(hour=23, minute=59, second=59, microsecond=999999)
-    return twelve_months_ago, today
+    # Set the start and end dates for the year 2024
+    start_date = datetime.datetime(2025, 1, 1, tzinfo=pytz.utc)  # (Year, Month, Day, Hour, Minute, Second, ...,)
+    end_date = datetime.datetime(2025, 1, 31, 23, 59, 59, 999999, tzinfo=pytz.utc)  # (Year, Month, Day, Hour, Minute, Second, ...,)
+
+    return start_date, end_date
 
 def is_valid_purchase_order(purchase_order, start_date, end_date):
     # Check if the purchase order is not void
@@ -69,16 +69,11 @@ def is_valid_purchase_order(purchase_order, start_date, end_date):
     if is_void:
         return False
 
-    # Check if the created date is within the last 12 months
-    created_date = parse_date(purchase_order.get('createdDate'))
-    return created_date and start_date <= created_date <= end_date
-
 def process_purchase_order(purchase_order, user_name):
     line_items = purchase_order.get('lineItems', [])
     currency_rate = float(purchase_order.get('currencyRate', 1))
-    estimated_delivery_date = parse_date(purchase_order.get('estimatedDeliveryDate'))
-    fully_received_date = parse_date(purchase_order.get('fullyReceivedDate'))
-    created_date = parse_date(purchase_order.get('createdDate'))
+    
+    invoice_date = parse_date(purchase_order.get('invoiceDate'))
     results = []
     for item in line_items:
         unit_price = float(item.get('unitPrice', 0))
@@ -103,7 +98,7 @@ def process_purchase_order(purchase_order, user_name):
             'lineItemUnitPrice': adjusted_unit_price,
             'lineItemDiscount': adjusted_discount,
             'lineItemoption3': item.get('option3', ''),
-            'invoiceDate' : created_date.strftime('%d/%m/%Y') if created_date else ''
+            'invoiceDate' : invoice_date.strftime('%d/%m/%Y') if invoice_date else ''
         })
     
     return results
