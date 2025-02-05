@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Configuration
 BASE_URL = 'https://api.cin7.com/api/v1/PurchaseOrders'
-FIELDS = 'id,reference,company,branchId,internalComments,currencyCode,currencyRate,lineItems,status,stage,projectName,invoiceDate,invoiceNumber,isVoid'
+FIELDS = 'id,reference,company,firstName,lastName,projectName,source,currencyCode,currencyRate,lineItems,invoiceDate,isVoid'
 ROWS_PER_PAGE = 250
 
 ARL_KEY = os.environ["ARL_KEY"]
@@ -37,7 +37,7 @@ def get_auth_header(username, key):
 def call_api(url, headers):
     try:
         response = requests.get(url, headers=headers)
-        response.raise_for_status()
+        response.raise_for_source()
         return response.json(), None
     except requests.RequestException as e:
         return None, str(e)
@@ -90,20 +90,17 @@ def process_purchase_order(purchase_order, user_name):
             'downloadSource': f"Cin7_{user_name}",
             'reference': purchase_order.get('reference'),
             'company': purchase_order.get('company'),
-            'branchId': purchase_order.get('branchId', ''),  # Added branchId
-            'status': purchase_order.get('status', ''),  # Added status
-            'stage': purchase_order.get('stage', ''),  # Added stage
             'firstName': purchase_order.get('firstName', ''),
             'lastName': purchase_order.get('lastName', ''),
             'projectName': purchase_order.get('projectName', ''),
-            'channel': purchase_order.get('source', ''),
+            'source': purchase_order.get('source', ''),  
             'currencyCode': purchase_order.get('currencyCode', ''),
             'lineItemcode': item.get('code', ''),
             'lineItemName': item.get('name', ''),
             'lineItemQty': item.get('qty', ''),
-            'lineItemoption3': item.get('option3', ''),
             'lineItemUnitPrice': adjusted_unit_price,
             'lineItemDiscount': adjusted_discount,
+            'lineItemoption3': item.get('option3', ''),
             'invoiceDate': invoice_date.strftime('%d/%m/%Y') if invoice_date else ''
         })
 
@@ -141,8 +138,8 @@ def process_user(user):
 def main():
     
     
-    fieldnames = ['downloadSource', 'sourceUser', 'reference', 'company', 'branchId', 'status', 'stage','firstName', 'lastName','projectName','channel','currencyCode', 
-    'lineItemcode', 'lineItemName',   'lineItemQty', 'lineItemoption3', 'lineItemUnitPrice', 'lineItemDiscount', 'invoiceDate'] 
+    fieldnames = ['downloadSource', 'sourceUser', 'reference', 'company', 'firstName', 'lastName','projectName','source','currencyCode', 
+    'lineItemcode', 'lineItemName',   'lineItemQty',  'lineItemUnitPrice', 'lineItemDiscount','lineItemoption3', 'invoiceDate'] 
     
     file_name = f"purchase_orders_LY.csv"
     env_file = os.getenv('GITHUB_ENV')
