@@ -95,9 +95,9 @@ def process_purchase_order(purchase_order, user_name):
             'lineItemcode': item.get('code', ''),
             'lineItemName': item.get('name', ''),
             'lineItemQty': item.get('qty', ''),
+            'lineItemoption3': item.get('option3', ''),
             'lineItemUnitPrice': adjusted_unit_price,
             'lineItemDiscount': adjusted_discount,
-            'lineItemoption3': item.get('option3', ''),
             'invoiceDate' : invoice_date.strftime('%d/%m/%Y') if invoice_date else ''
         })
     
