@@ -37,7 +37,7 @@ def get_auth_header(username, key):
 def call_api(url, headers):
     try:
         response = requests.get(url, headers=headers)
-        response.raise_for_source()
+        response.raise_for_status()
         return response.json(), None
     except requests.RequestException as e:
         return None, str(e)
