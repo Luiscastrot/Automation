@@ -137,7 +137,7 @@ def main():
     
     fieldnames = ['downloadSource', 'sourceUser', 'reference', 'company', 'branchId', 'currencyCode', 
     'lineItemcode', 'lineItemName','status','stage','projectName', 'lineItemQty', 'lineItemoption3', 'lineItemUnitPrice', 
-    'lineItemDiscount', 'createdDate', 'estimatedDeliveryDate', 'fullyReceivedDate']
+    'lineItemDiscount', 'invoiceDate']
     
     file_name = f"purchase_orders_LY.csv"
     env_file = os.getenv('GITHUB_ENV')
