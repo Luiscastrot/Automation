@@ -103,7 +103,7 @@ def process_purchase_order(purchase_order, user_name):
             'lineItemDiscount': adjusted_discount,
             'invoiceDate': invoice_date.strftime('%d/%m/%Y') if invoice_date else ''
         })
-        
+
     return results
 
 def process_user(user):
@@ -138,9 +138,8 @@ def process_user(user):
 def main():
     
     
-    fieldnames = ['downloadSource', 'sourceUser', 'reference', 'company', 'branchId', 'currencyCode', 
-    'lineItemcode', 'lineItemName','status','stage','projectName', 'lineItemQty', 'lineItemoption3', 'lineItemUnitPrice', 
-    'lineItemDiscount', 'invoiceDate']
+    fieldnames = ['downloadSource', 'sourceUser', 'reference', 'company', 'branchId', 'status', 'stage','firstName', 'lastName','projectName','channel','currencyCode', 
+    'lineItemcode', 'lineItemName',   'lineItemQty', 'lineItemoption3', 'lineItemUnitPrice', 'lineItemDiscount', 'invoiceDate'] 
     
     file_name = f"purchase_orders_LY.csv"
     env_file = os.getenv('GITHUB_ENV')
