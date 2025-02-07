@@ -71,38 +71,30 @@ def calculate_date_range():
 
 def is_valid_purchase_order(purchase_order, start_date, end_date):
     # Check if the purchase order is NOT void
-    if not purchase_order.get('isVoid', False):
-        return False  # Ignore if it's not void
-
+    if purchase_order.get('isVoid', False):
+        return False
+    
     # Check if the created date is within the last 12 months
     created_date = parse_date(purchase_order.get('createdDate'))
     return created_date and start_date <= created_date <= end_date
 
 
 def process_purchase_order(purchase_order, user_name):
+    stage = str(purchase_order.get('Stage', '')).strip()
+    
+    # Define ignored stages
+    ignored_stages = {'Received', 'Dispatched', 'Completed', 'New'}
+    
+    # Only allow "Void" stage (case insensitive)
+    if stage.lower() != "void":
+        logging.info(f"Skipping purchase order with stage: '{stage}'")
+        return []
+    
     line_items = purchase_order.get('lineItems', [])
     estimated_delivery_date = parse_date(purchase_order.get('estimatedDeliveryDate'))
     fully_received_date = parse_date(purchase_order.get('fullyReceivedDate'))
     created_date = parse_date(purchase_order.get('createdDate'))
-    stage = purchase_order.get('Stage', '').strip()
-
-    # Log raw and stripped stage values for debugging
-    logging.debug(f"Raw stage: '{stage}'")
-
-    # Define the stages to ignore
-    ignored_stages = {'Received', 'Dispatched', 'Completed', 'New'}
-
-    # Skip orders where the stage is in the ignored list
-    if stage in ignored_stages:
-        logging.info(f"Skipping purchase order with stage: '{stage}'")
-        return []
-
-    # Only process orders where the stage is "Void" (case insensitive)
-    if stage.lower() != "void":
-        logging.info(f"Skipping purchase order because stage is not 'Void': '{stage}'")
-        return []
-
-    # Create a dictionary to map full names to abbreviations
+    
     user_abbreviations = {
         "AlbertRogerUK": "ARL",
         "AlbertRogerNetheEU": "ARNL",
@@ -156,19 +148,16 @@ def process_user(user):
 
         logging.info(f"Page {page} processed for user {user['username']}.")
         page += 1
-        time.sleep(0.5)  # Rate limiting
+        time.sleep(0.5)
 
     return all_purchase_orders
 
 
 def main():
-    fieldnames = ['sourceUser', 'reference', 'company', 'currencyCode', 
-                  'lineItemcode', 'lineItemName', 'status', 'Stage', 'lineItemQty', 
-                  'createdDate', 'estimatedDeliveryDate', 'fullyReceivedDate']
-    
+    fieldnames = ['sourceUser', 'reference', 'company', 'currencyCode', 'lineItemcode', 'lineItemName', 'status', 'Stage', 'lineItemQty', 'createdDate', 'estimatedDeliveryDate', 'fullyReceivedDate']
     file_name = "purchase_orders_LY.csv"
-    all_purchase_orders = []
 
+    all_purchase_orders = []
     with ThreadPoolExecutor(max_workers=4) as executor:
         results = executor.map(process_user, USERS)
         for user_purchase_orders in results:
@@ -177,7 +166,8 @@ def main():
     with open(file_name, mode='w', newline='', encoding='utf-8') as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(all_purchase_orders)
+        for purchase_order in all_purchase_orders:
+            writer.writerow(purchase_order)
 
     logging.info(f"Data successfully written to {file_name}")
 
