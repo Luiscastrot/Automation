@@ -21,12 +21,13 @@ ARL_KEY = os.environ["ARL_KEY"]
 ARIB_KEY = os.environ["ARIB_KEY"]
 ARNL_KEY = os.environ["ARNL_KEY"]
 ARF_KEY = os.environ["ARF_KEY"]
+
 # List of user credentials
 USERS = [
-    {"username":"AlbertRogerUK", "key": ARL_KEY},
-    {"username":"AlbertRogerFrancEU","key": ARF_KEY},
-    {"username":"AlbertRogerIberiEU", "key": ARIB_KEY},
-    {"username":"AlbertRogerNetheEU", "key": ARNL_KEY}
+    {"username": "AlbertRogerUK", "key": ARL_KEY},
+    {"username": "AlbertRogerFrancEU", "key": ARF_KEY},
+    {"username": "AlbertRogerIberiEU", "key": ARIB_KEY},
+    {"username": "AlbertRogerNetheEU", "key": ARNL_KEY}
 ]
 
 
@@ -35,6 +36,7 @@ def get_auth_header(username, key):
     encoded_credentials = base64.b64encode(credentials.encode('utf-8')).decode('utf-8')
     return {'Authorization': f'Basic {encoded_credentials}', 'Content-Type': 'application/json'}
 
+
 def call_api(url, headers):
     try:
         response = requests.get(url, headers=headers)
@@ -42,6 +44,7 @@ def call_api(url, headers):
         return response.json(), None
     except requests.RequestException as e:
         return None, str(e)
+
 
 def parse_date(date_string):
     if not date_string:
@@ -57,6 +60,7 @@ def parse_date(date_string):
         logging.warning(f"Failed to parse date: {date_string}. Error: {e}")
         return None
 
+
 def calculate_date_range():
     today = datetime.datetime.now(pytz.utc)
     twelve_months_ago = today - datetime.timedelta(days=365)
@@ -64,53 +68,51 @@ def calculate_date_range():
     today = today.replace(hour=23, minute=59, second=59, microsecond=999999)
     return twelve_months_ago, today
 
+
 def is_valid_purchase_order(purchase_order, start_date, end_date):
     # Check if the purchase order is NOT void
-    is_not_void = not purchase_order.get('isVoid', False)
-    if is_not_void:
+    if not purchase_order.get('isVoid', False):
         return False  # Ignore if it's not void
 
     # Check if the created date is within the last 12 months
     created_date = parse_date(purchase_order.get('createdDate'))
     return created_date and start_date <= created_date <= end_date
-    
+
+
 def process_purchase_order(purchase_order, user_name):
     line_items = purchase_order.get('lineItems', [])
     estimated_delivery_date = parse_date(purchase_order.get('estimatedDeliveryDate'))
     fully_received_date = parse_date(purchase_order.get('fullyReceivedDate'))
     created_date = parse_date(purchase_order.get('createdDate'))
-    stage = purchase_order.get('Stage', '')
-    
+    stage = purchase_order.get('Stage', '').strip()
+
     # Log raw and stripped stage values for debugging
-    logging.debug(f"Raw stage: '{stage}', Stripped stage: '{stage.strip()}'")
+    logging.debug(f"Raw stage: '{stage}'")
 
     # Define the stages to ignore
     ignored_stages = {'Received', 'Dispatched', 'Completed', 'New'}
 
     # Skip orders where the stage is in the ignored list
-    if stage.strip() in ignored_stages:
+    if stage in ignored_stages:
         logging.info(f"Skipping purchase order with stage: '{stage}'")
         return []
 
-# Only process orders where the stage is "Void" (case insensitive)
-    if stage.strip().lower() != "void":
+    # Only process orders where the stage is "Void" (case insensitive)
+    if stage.lower() != "void":
         logging.info(f"Skipping purchase order because stage is not 'Void': '{stage}'")
         return []
 
-     # Create a dictionary to map full names to abbreviations
+    # Create a dictionary to map full names to abbreviations
     user_abbreviations = {
         "AlbertRogerUK": "ARL",
         "AlbertRogerNetheEU": "ARNL",
         "AlbertRogerFrancEU": "ARF",
         "AlbertRogerIberiEU": "ARIB"
     }
-    
-    # Get the abbreviation for the user_name, or use the original if not found
     abbreviated_user_name = user_abbreviations.get(user_name, user_name)
 
     results = []
     for item in line_items:
-       
         results.append({
             'sourceUser': abbreviated_user_name,
             'reference': purchase_order.get('reference'),
@@ -118,15 +120,16 @@ def process_purchase_order(purchase_order, user_name):
             'currencyCode': purchase_order.get('currencyCode'),
             'lineItemcode': item.get('code', ''),
             'lineItemName': item.get('name', ''),
-            'status':purchase_order.get('status', ''),
+            'status': purchase_order.get('status', ''),
             'Stage': stage,
             'lineItemQty': item.get('qty', ''),
-            'createdDate' : created_date.strftime('%d/%m/%Y') if created_date else '',
+            'createdDate': created_date.strftime('%d/%m/%Y') if created_date else '',
             'estimatedDeliveryDate': estimated_delivery_date.strftime('%d/%m/%Y') if estimated_delivery_date else '',
             'fullyReceivedDate': fully_received_date.strftime('%d/%m/%Y') if fully_received_date else ''
         })
     
     return results
+
 
 def process_user(user):
     headers = get_auth_header(user['username'], user['key'])
@@ -157,35 +160,24 @@ def process_user(user):
 
     return all_purchase_orders
 
+
 def main():
-    
-    
     fieldnames = ['sourceUser', 'reference', 'company', 'currencyCode', 
-    'lineItemcode', 'lineItemName','status','Stage' 'lineItemQty','createdDate', 'estimatedDeliveryDate', 'fullyReceivedDate']
+                  'lineItemcode', 'lineItemName', 'status', 'Stage', 'lineItemQty', 
+                  'createdDate', 'estimatedDeliveryDate', 'fullyReceivedDate']
     
-    file_name = f"purchase_orders_LY.csv"
-    env_file = os.getenv('GITHUB_ENV')
-    if env_file:
-        try:
-            with open(env_file, "a") as env_file:    
-                env_file.write(f"ENV_CUSTOM_DATE_FILE={file_name}")
-        except IOError as e:
-            logging.error(f"Error writing to env file: {str(e)}")
- 
+    file_name = "purchase_orders_LY.csv"
     all_purchase_orders = []
 
-    # Process users in parallel
     with ThreadPoolExecutor(max_workers=4) as executor:
         results = executor.map(process_user, USERS)
         for user_purchase_orders in results:
             all_purchase_orders.extend(user_purchase_orders)
 
-    # Write all purchase orders to a single CSV file
     with open(file_name, mode='w', newline='', encoding='utf-8') as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
-        for purchase_order in all_purchase_orders:
-            writer.writerow(purchase_order)
+        writer.writerows(all_purchase_orders)
 
     logging.info(f"Data successfully written to {file_name}")
 
