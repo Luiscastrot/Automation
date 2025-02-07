@@ -87,9 +87,14 @@ def process_purchase_order(purchase_order, user_name):
     # Define the stages to ignore
     ignored_stages = {'Received', 'Dispatched', 'Completed', 'New'}
 
-    # Skip orders where stage is in the ignored list or not blank
-    if stage.strip() in ignored_stages or (stage.strip() and stage.strip().lower() != "void"):
+    # Skip orders where the stage is in the ignored list
+    if stage.strip() in ignored_stages:
         logging.info(f"Skipping purchase order with stage: '{stage}'")
+        return []
+
+# Only process orders where the stage is "Void" (case insensitive)
+    if stage.strip().lower() != "void":
+        logging.info(f"Skipping purchase order because stage is not 'Void': '{stage}'")
         return []
 
      # Create a dictionary to map full names to abbreviations
