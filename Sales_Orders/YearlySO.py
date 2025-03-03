@@ -59,8 +59,8 @@ def parse_date(date_string):
 
 def calculate_date_range():
     # Set the start and end dates for the year 2024
-    start_date = datetime.datetime(2024, 1, 1, tzinfo=pytz.utc)  # (Year, Month, Day, Hour, Minute, Second, ...,)
-    end_date = datetime.datetime(2025, 1, 31, 23, 59, 59, 999999, tzinfo=pytz.utc)  # (Year, Month, Day, Hour, Minute, Second, ...,)
+    start_date = datetime.datetime(2025, 1, 1, tzinfo=pytz.utc)  # (Year, Month, Day, Hour, Minute, Second, ...,)
+    end_date = datetime.datetime(2025, 2, 31, 23, 59, 59, 999999, tzinfo=pytz.utc)  # (Year, Month, Day, Hour, Minute, Second, ...,)
 
     return start_date, end_date
 
@@ -72,9 +72,8 @@ def process_sales_orders(sales_orders, user_name):
     line_items = sales_orders.get('lineItems', [])
     currency_rate = float(sales_orders.get('currencyRate', 1))
     invoice_date = parse_date(sales_orders.get('invoiceDate'))
-    
 
-    # Create a dictionary to map full names to abbreviations
+     # Create a dictionary to map full names to abbreviations
     user_abbreviations = {
         "AlbertRogerUK": "ARL",
         "AlbertRogerNetheEU": "ARNL",
@@ -90,7 +89,7 @@ def process_sales_orders(sales_orders, user_name):
         unit_price = float(item.get('unitPrice', 0))
         discount = float(item.get('discount', 0))
         discount_total = float(item.get('discountTotal',0))
-
+        
         adjusted_unit_price = round(unit_price * currency_rate, 2)
         adjusted_discount = round(discount * currency_rate, 2)
         adjusted_discount_total = round(discount_total*currency_rate,2)
@@ -107,7 +106,7 @@ def process_sales_orders(sales_orders, user_name):
             'projectName': sales_orders.get('projectName'),
             'channel': sales_orders.get('source'),
             'currencyCode': sales_orders.get('currencyCode'),
-            'lineItemcode': item.get('code', ''),
+            'lineItemcode':item.get('code',''),
             'lineItemName': item.get('name', ''),
             'lineItemQty': item.get('qty', ''),
             'lineItemoption3': item.get('option3',''),
@@ -115,6 +114,7 @@ def process_sales_orders(sales_orders, user_name):
             'lineItemDiscount': adjusted_discount,
             'discountTotal': adjusted_discount_total,            
             'invoiceDate': invoice_date.strftime('%d/%m/%Y') if invoice_date else ''
+
         })
     
     return results
@@ -154,12 +154,12 @@ def main():
     fieldnames = ['sourceUser','reference', 'invoiceNumber','customerOrderNo','createdDate','company', 'firstName', 'lastName', 'projectName', 
                   'channel', 'currencyCode','lineItemcode', 'lineItemName','lineItemQty','lineItemoption3', 'lineItemUnitPrice', 'lineItemDiscount', 'discountTotal','invoiceDate']
     
-    
     file_name = f"Sales_Orders_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"
 
     env_file = os.getenv('GITHUB_ENV') 
     with open(env_file, "a") as env_file:    
         env_file.write(f"ENV_CUSTOM_DATE_FILE={file_name}")
+ 
 
     all_sales_orderss = []
 

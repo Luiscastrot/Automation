@@ -6,8 +6,8 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # API Credentials
-api_username = "AlbertRogerUK"  # Replace with your Cin7 username
-api_key = "d7fa15ce7fde46de82b53fd4dcaea663"  # Replace with your Cin7 API key
+api_username = "AlbertRogerNetheEU"  # Replace with your Cin7 username
+api_key = "27ebeb43f85944e489f31cdc284d1802"  # Replace with your Cin7 API key
 
 # API URL
 BASE_URL = 'https://api.cin7.com/api/v1'
@@ -22,7 +22,7 @@ def get_auth_header(username, key):
     }
 
 def get_sales_order(order_id, headers):
-    url = f'{BASE_URL}/PurchaseOrders/{order_id}'
+    url = f'{BASE_URL}/SalesOrders/{order_id}'
     try:
         response = requests.get(url, headers=headers)
         response.raise_for_status()
