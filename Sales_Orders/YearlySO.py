@@ -85,14 +85,20 @@ def process_sales_orders(sales_orders, user_name):
     # Get the abbreviation for the user_name, or use the original if not found
     abbreviated_user_name = user_abbreviations.get(user_name, user_name)
 
+   
     results = []
+    num_products = len(line_items)
+    
     for item in line_items:
         unit_price = float(item.get('unitPrice', 0))
         discount = float(item.get('discount', 0))
         
         adjusted_unit_price = round(unit_price * currency_rate, 2)
         adjusted_discount = round(discount * currency_rate, 2)
-        adjusted_discount_total = round(discount_total * currency_rate,2)
+        
+        # Distribute discountTotal across all products
+        adjusted_discount_total = round((discount_total / num_products) * currency_rate, 2)
+
 
         results.append({
             'sourceUser': abbreviated_user_name,
