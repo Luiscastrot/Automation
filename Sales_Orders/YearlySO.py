@@ -72,6 +72,7 @@ def process_sales_orders(sales_orders, user_name):
     line_items = sales_orders.get('lineItems', [])
     currency_rate = float(sales_orders.get('currencyRate', 1))
     invoice_date = parse_date(sales_orders.get('invoiceDate'))
+    discount_total = sales_orders.get('discountTotal', 0)
 
      # Create a dictionary to map full names to abbreviations
     user_abbreviations = {
@@ -88,11 +89,10 @@ def process_sales_orders(sales_orders, user_name):
     for item in line_items:
         unit_price = float(item.get('unitPrice', 0))
         discount = float(item.get('discount', 0))
-        discount_total = float(item.get('discountTotal',0))
         
         adjusted_unit_price = round(unit_price * currency_rate, 2)
         adjusted_discount = round(discount * currency_rate, 2)
-        adjusted_discount_total = round(discount_total*currency_rate,2)
+        adjusted_discount_total = round(discount_total * currency_rate,2)
 
         results.append({
             'sourceUser': abbreviated_user_name,
