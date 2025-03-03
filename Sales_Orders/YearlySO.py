@@ -59,8 +59,8 @@ def parse_date(date_string):
 
 def calculate_date_range():
     # Set the start and end dates for the year 2024
-    start_date = datetime.datetime(2025, 1, 1, tzinfo=pytz.utc)  # (Year, Month, Day, Hour, Minute, Second, ...,)
-    end_date = datetime.datetime(2025, 2, 28, 23, 59, 59, 999999, tzinfo=pytz.utc)  # (Year, Month, Day, Hour, Minute, Second, ...,)
+    start_date = datetime.datetime(2025, 1, 18, tzinfo=pytz.utc)  # (Year, Month, Day, Hour, Minute, Second, ...,)
+    end_date = datetime.datetime(2025, 2, 18, 23, 59, 59, 999999, tzinfo=pytz.utc)  # (Year, Month, Day, Hour, Minute, Second, ...,)
 
     return start_date, end_date
 
