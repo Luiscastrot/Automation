@@ -1,9 +1,9 @@
-name:  run YearlySO.py
+name:  run Select_Date_CRN.py
 
 on:
   workflow_dispatch:
-  #schedule:
-    #- cron: '0 3 * * 6,0,1' # At 03:00, Monday  (La hora depende de la localización del servidor)
+ # schedule:
+  #  - cron: '0 3 * * 6,0,1' # At 03:00, Monday  (La hora depende de la localización del servidor)
 
 jobs:
   build:
@@ -29,7 +29,7 @@ jobs:
           ARL_KEY: ${{ secrets.ARL_KEY }}
           ARNL_KEY: ${{ secrets.ARNL_KEY }}
           ARF_KEY: ${{ secrets.ARF_KEY }}
-        run: python Sales_Orders/YearlySO.py
+        run: python Credit_Notes/Select_Date_CRN.py
 
       - name: Upload File to Dropbox
         uses: ./upload-dropbox-action
