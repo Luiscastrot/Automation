@@ -63,20 +63,27 @@ def calculate_date_range():
     return start_date, end_date
 
 def is_valid_purchase_order(purchase_order, start_date, end_date):
-    is_void = purchase_order.get('isVoid', False)
-    if is_void:
-        return False
-    
     invoice_date = parse_date(purchase_order.get('invoiceDate'))
-    
-    # Check if invoice date is within the specified range
     return invoice_date and start_date <= invoice_date <= end_date
     
 def process_purchase_order(purchase_order, user_name):
     line_items = purchase_order.get('lineItems', [])
     currency_rate = float(purchase_order.get('currencyRate', 1))
-    
     invoice_date = parse_date(purchase_order.get('invoiceDate'))
+
+
+     # Create a dictionary to map full names to abbreviations
+    user_abbreviations = {
+        "AlbertRogerUK": "ARL",
+        "AlbertRogerNetheEU": "ARNL",
+        "AlbertRogerFrancEU": "ARF",
+        "AlbertRogerIberiEU": "ARIB"
+    }
+    
+    # Get the abbreviation for the user_name, or use the original if not found
+    abbreviated_user_name = user_abbreviations.get(user_name, user_name)
+
+
     results = []
     for item in line_items:
         unit_price = float(item.get('unitPrice', 0))
@@ -87,7 +94,7 @@ def process_purchase_order(purchase_order, user_name):
 
         results.append({
         'sourceUser': user_name,
-            'downloadSource': f"Cin7_{user_name}",
+            'downloadSource': abbreviated_user_name,
             'reference': purchase_order.get('reference'),
             'company': purchase_order.get('company'),
             'firstName': purchase_order.get('firstName', ''),
