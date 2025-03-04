@@ -146,7 +146,7 @@ def main():
     'lineItemcode', 'lineItemName','status','stage','projectName', 'lineItemQty', 'lineItemoption3', 'lineItemUnitPrice', 
     'lineItemDiscount', 'createdDate', 'estimatedDeliveryDate', 'fullyReceivedDate']
     
-    file_name = f"purchase_orders_LY.csv"
+    file_name = f"purchase_orders_Daily.csv"
     env_file = os.getenv('GITHUB_ENV')
     if env_file:
         try:
