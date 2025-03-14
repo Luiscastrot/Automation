@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Configuration
 BASE_URL = 'https://api.cin7.com/api/v1/SalesOrders'
-FIELDS = 'id,reference,customerOrderNo,salesReference,invoiceDate,createdDate,company,firstName,lastName,projectName,source,currencyCode,currencyRate,lineItems,discountTotal,completedDate,invoiceNumber','customFields'
+FIELDS = 'id,reference,customerOrderNo,salesReference,invoiceDate,createdDate,company,firstName,lastName,projectName,source,currencyCode,currencyRate,lineItems,discountTotal,completedDate,invoiceNumber,customFields'
 ROWS_PER_PAGE = 250
 
 ARL_KEY = os.environ["ARL_KEY"]
@@ -59,8 +59,8 @@ def parse_date(date_string):
 
 def calculate_date_range():
     # Set the start and end dates for the year 2024
-    start_date = datetime.datetime(2025, 3, 1, tzinfo=pytz.utc)  # (Year, Month, Day, Hour, Minute, Second, ...,)
-    end_date = datetime.datetime(2025, 12, 31, 23, 59, 59, 999999, tzinfo=pytz.utc)  # (Year, Month, Day, Hour, Minute, Second, ...,)
+    start_date = datetime.datetime(2025, 3, 1, tzinfo=pytz.utc)  
+    end_date = datetime.datetime(2025, 12, 31, 23, 59, 59, 999999, tzinfo=pytz.utc)  
 
     return start_date, end_date
 
@@ -73,9 +73,9 @@ def process_sales_orders(sales_orders, user_name):
     currency_rate = float(sales_orders.get('currencyRate', 1))
     invoice_date = parse_date(sales_orders.get('invoiceDate'))
     discount_total = sales_orders.get('discountTotal', 0)
-    custom_fields= sales_orders.get('customFields',[])
+    custom_fields = sales_orders.get('customFields', [])
 
-     # Create a dictionary to map full names to abbreviations
+    # Create a dictionary to map full names to abbreviations
     user_abbreviations = {
         "AlbertRogerUK": "ARL",
         "AlbertRogerNetheEU": "ARNL",
@@ -86,43 +86,41 @@ def process_sales_orders(sales_orders, user_name):
     # Get the abbreviation for the user_name, or use the original if not found
     abbreviated_user_name = user_abbreviations.get(user_name, user_name)
 
-   
     results = []
     num_products = len(line_items)
     
     for item in line_items:
         unit_price = float(item.get('unitPrice', 0))
         discount = float(item.get('discount', 0))
-    for direct in custom_fields:  
+        
+        # Find 'orders_1001' in custom fields
+        orders_1001 = next((field.get('orders_1001') for field in custom_fields if 'orders_1001' in field), '')
+
         adjusted_unit_price = round(unit_price * currency_rate, 2)
         adjusted_discount = round(discount * currency_rate, 2)
-        
-        # Distribute discountTotal across all products
         adjusted_discount_total = round((discount_total / num_products) * currency_rate, 2)
-
 
         results.append({
             'sourceUser': abbreviated_user_name,
             'reference': sales_orders.get('reference'),
-            'invoiceNumber':sales_orders.get('invoiceNumber'),
-            'customerOrderNo':sales_orders.get('customerOrderNo'),
-            'createdDate': item.get('createdDate',''),
+            'invoiceNumber': sales_orders.get('invoiceNumber'),
+            'customerOrderNo': sales_orders.get('customerOrderNo'),
+            'createdDate': item.get('createdDate', ''),
             'company': sales_orders.get('company'),
             'firstName': sales_orders.get('firstName'),
             'lastName': sales_orders.get('lastName'),
             'projectName': sales_orders.get('projectName'),
             'channel': sales_orders.get('source'),
             'currencyCode': sales_orders.get('currencyCode'),
-            'lineItemcode':item.get('code',''),
+            'lineItemcode': item.get('code', ''),
             'lineItemName': item.get('name', ''),
-            'customFieldsorders_1001':direct.get('orders_1001',''),
+            'customFieldsorders_1001': orders_1001,
             'lineItemQty': item.get('qty', ''),
-            'lineItemoption3': item.get('option3',''),
+            'lineItemoption3': item.get('option3', ''),
             'lineItemUnitPrice': adjusted_unit_price,
             'lineItemDiscount': adjusted_discount,
             'discountTotal': adjusted_discount_total,            
             'invoiceDate': invoice_date.strftime('%d/%m/%Y') if invoice_date else ''
-
         })
     
     return results
