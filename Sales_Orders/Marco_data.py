@@ -73,7 +73,7 @@ def process_sales_orders(sales_orders, user_name):
     currency_rate = float(sales_orders.get('currencyRate', 1))
     invoice_date = parse_date(sales_orders.get('invoiceDate'))
     discount_total = sales_orders.get('discountTotal', 0)
-    custom_fields = sales_orders.get('customFields', [])
+    custom_fields = sales_orders.get('customFields', {})
 
     # Create a dictionary to map full names to abbreviations
     user_abbreviations = {
@@ -93,8 +93,8 @@ def process_sales_orders(sales_orders, user_name):
         unit_price = float(item.get('unitPrice', 0))
         discount = float(item.get('discount', 0))
         
-        # Find 'orders_1001' in custom fields
-        orders_1001 = next((field.get('orders_1001') for field in custom_fields if 'orders_1001' in field), '')
+        orders_1001 = custom_fields.get('orders_1001', '')
+
 
         adjusted_unit_price = round(unit_price * currency_rate, 2)
         adjusted_discount = round(discount * currency_rate, 2)
