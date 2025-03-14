@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Configuration
 BASE_URL = 'https://api.cin7.com/api/v1/SalesOrders'
-FIELDS = 'id,reference,customerOrderNo,salesReference,invoiceDate,createdDate,company,firstName,lastName,projectName,source,currencyCode,currencyRate,lineItems,discountTotal,completedDate,invoiceNumber'
+FIELDS = 'id,reference,customerOrderNo,salesReference,invoiceDate,createdDate,company,firstName,lastName,projectName,source,currencyCode,currencyRate,lineItems,discountTotal,completedDate,invoiceNumber','customFields'
 ROWS_PER_PAGE = 250
 
 ARL_KEY = os.environ["ARL_KEY"]
@@ -73,6 +73,7 @@ def process_sales_orders(sales_orders, user_name):
     currency_rate = float(sales_orders.get('currencyRate', 1))
     invoice_date = parse_date(sales_orders.get('invoiceDate'))
     discount_total = sales_orders.get('discountTotal', 0)
+    custom_fields= sales_orders.get('customFields',[])
 
      # Create a dictionary to map full names to abbreviations
     user_abbreviations = {
@@ -114,6 +115,7 @@ def process_sales_orders(sales_orders, user_name):
             'currencyCode': sales_orders.get('currencyCode'),
             'lineItemcode':item.get('code',''),
             'lineItemName': item.get('name', ''),
+            'customFieldsorders_1001':item.get('orders_1001',''),
             'lineItemQty': item.get('qty', ''),
             'lineItemoption3': item.get('option3',''),
             'lineItemUnitPrice': adjusted_unit_price,
@@ -158,7 +160,7 @@ def main():
     start_date, end_date = calculate_date_range()
     
     fieldnames = ['sourceUser','reference', 'invoiceNumber','customerOrderNo','createdDate','company', 'firstName', 'lastName', 'projectName', 
-                  'channel', 'currencyCode','lineItemcode', 'lineItemName','lineItemQty','lineItemoption3', 'lineItemUnitPrice', 'lineItemDiscount', 'discountTotal','invoiceDate']
+                  'channel', 'currencyCode','lineItemcode', 'lineItemName','customFieldsorders_1001','lineItemQty','lineItemoption3', 'lineItemUnitPrice', 'lineItemDiscount', 'discountTotal','invoiceDate']
     
     file_name = f"Sales_Orders_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"
 
