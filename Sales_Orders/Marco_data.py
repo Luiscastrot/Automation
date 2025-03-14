@@ -93,7 +93,7 @@ def process_sales_orders(sales_orders, user_name):
     for item in line_items:
         unit_price = float(item.get('unitPrice', 0))
         discount = float(item.get('discount', 0))
-        
+    for direct in custom_fields:  
         adjusted_unit_price = round(unit_price * currency_rate, 2)
         adjusted_discount = round(discount * currency_rate, 2)
         
@@ -115,7 +115,7 @@ def process_sales_orders(sales_orders, user_name):
             'currencyCode': sales_orders.get('currencyCode'),
             'lineItemcode':item.get('code',''),
             'lineItemName': item.get('name', ''),
-            'customFieldsorders_1001':item.get('orders_1001',''),
+            'customFieldsorders_1001':direct.get('orders_1001',''),
             'lineItemQty': item.get('qty', ''),
             'lineItemoption3': item.get('option3',''),
             'lineItemUnitPrice': adjusted_unit_price,
