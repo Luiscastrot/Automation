@@ -69,16 +69,12 @@ def is_valid_sales_orders(sales_orders, start_date, end_date):
     return invoice_date and start_date <= invoice_date <= end_date
 
 def process_sales_orders(sales_orders, user_name):
-    print("API Response:", sales_orders)  # Debug: Print API response
-    
     line_items = sales_orders.get('lineItems', [])
     currency_rate = float(sales_orders.get('currencyRate', 1))
     invoice_date = parse_date(sales_orders.get('invoiceDate'))
     discount_total = sales_orders.get('discountTotal', 0)
     custom_fields = sales_orders.get('customFields', {})
-    
-    print("Custom Fields:", custom_fields)  # Debug: Print custom fields
-    
+
     # Create a dictionary to map full names to abbreviations
     user_abbreviations = {
         "AlbertRogerUK": "ARL",
@@ -97,11 +93,7 @@ def process_sales_orders(sales_orders, user_name):
         unit_price = float(item.get('unitPrice', 0))
         discount = float(item.get('discount', 0))
         
-        if 'orders_1001' in custom_fields:  # Check if field exists
-            orders_1001 = custom_fields['orders_1001']
-        else:
-            orders_1001 = ''
-            logging.warning(f"orders_1001 not found in custom fields for sales order {sales_orders.get('reference')}")
+        orders_1001 = custom_fields.get('orders_1001', '')
         
         adjusted_unit_price = round(unit_price * currency_rate, 2)
         adjusted_discount = round(discount * currency_rate, 2)
@@ -122,6 +114,7 @@ def process_sales_orders(sales_orders, user_name):
             'lineItemcode': item.get('code', ''),
             'lineItemName': item.get('name', ''),
             'customFieldsorders_1001': orders_1001,
+            'orders': sales_orders.get('orders_1001',''),  # Duplicate field for safety
             'lineItemQty': item.get('qty', ''),
             'lineItemoption3': item.get('option3', ''),
             'lineItemUnitPrice': adjusted_unit_price,
@@ -131,7 +124,6 @@ def process_sales_orders(sales_orders, user_name):
         })
     
     return results
-
 
 def process_user(user):
     headers = get_auth_header(user['username'], user['key'])
