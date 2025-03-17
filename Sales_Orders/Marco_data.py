@@ -59,7 +59,7 @@ def parse_date(date_string):
 
 def calculate_date_range():
     # Set the start and end dates for the year 2024
-    start_date = datetime.datetime(2025, 1, 1, tzinfo=pytz.utc)  
+    start_date = datetime.datetime(2024, 1, 1, tzinfo=pytz.utc)  
     end_date = datetime.datetime(2025, 12, 31, 23, 59, 59, 999999, tzinfo=pytz.utc)  
 
     return start_date, end_date
@@ -75,8 +75,7 @@ def process_sales_orders(sales_orders, user_name):
     currency_rate = float(sales_orders.get('currencyRate', 1))
     invoice_date = parse_date(sales_orders.get('invoiceDate'))
     discount_total = sales_orders.get('discountTotal', 0)
-    custom_fields = sales_orders.get('customFields', {})
-    orders_1001 = custom_fields.get('orders_1001', '')
+   
 
     # Create a dictionary to map full names to abbreviations
     user_abbreviations = {
@@ -115,8 +114,7 @@ def process_sales_orders(sales_orders, user_name):
             'currencyCode': sales_orders.get('currencyCode'),
             'lineItemcode': item.get('code', ''),
             'lineItemName': item.get('name', ''),
-            'customFieldsorders_1001': sales_orders.get('customFields'),
-            'orders': sales_orders.get('customFields').get('orders_1001'),
+            'customFieldsorders_1001': sales_orders.get('customFields').get('orders_1001'),
             'lineItemQty': item.get('qty', ''),
             'lineItemoption3': item.get('option3', ''),
             'lineItemUnitPrice': adjusted_unit_price,
@@ -160,7 +158,7 @@ def main():
     start_date, end_date = calculate_date_range()
     
     fieldnames = ['sourceUser','reference', 'invoiceNumber','customerOrderNo','createdDate','company', 'firstName', 'lastName', 'projectName', 
-                  'channel', 'currencyCode','lineItemcode', 'lineItemName','customFieldsorders_1001','orders','lineItemQty','lineItemoption3', 'lineItemUnitPrice', 'lineItemDiscount', 'discountTotal','invoiceDate']
+                  'channel', 'currencyCode','lineItemcode', 'lineItemName','customFieldsorders_1001','lineItemQty','lineItemoption3', 'lineItemUnitPrice', 'lineItemDiscount', 'discountTotal','invoiceDate']
     
     file_name = f"Sales_Orders_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"
 
