@@ -2,7 +2,7 @@ import time
 import requests
 import base64
 import datetime
-import csv
+import pandas as pd
 from dateutil import parser
 import pytz
 import logging
@@ -160,12 +160,7 @@ def main():
     fieldnames = ['sourceUser','reference', 'invoiceNumber','customerOrderNo','createdDate','company', 'firstName', 'lastName', 'projectName', 
                   'channel', 'currencyCode','lineItemcode', 'lineItemName','customFieldsorders_1001','lineItemQty','lineItemoption3', 'lineItemUnitPrice', 'lineItemDiscount', 'discountTotal','invoiceDate']
     
-    file_name = f"Sales_Orders_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"
-
-    env_file = os.getenv('GITHUB_ENV') 
-    with open(env_file, "a") as env_file:    
-        env_file.write(f"ENV_CUSTOM_DATE_FILE={file_name}")
- 
+    file_name = f"Sales_Orders_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.xlsx"
 
     all_sales_orderss = []
 
@@ -175,15 +170,20 @@ def main():
         for user_sales_orderss in results:
             all_sales_orderss.extend(user_sales_orderss)
 
-    # Write all sales orders to a single CSV file
-    with open(file_name, mode='w', newline='', encoding='utf-8') as csv_file:
-        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-        writer.writeheader()
-        for sales_orders in all_sales_orderss:
-            writer.writerow(sales_orders)
+    # Create DataFrame
+    df = pd.DataFrame(all_sales_orderss, columns=fieldnames)
+    
+    # Save to Excel
+    df.to_excel(file_name, index=False, engine='openpyxl')
+
+    env_file = os.getenv('GITHUB_ENV') 
+    with open(env_file, "a") as env_file:    
+        env_file.write(f"ENV_CUSTOM_DATE_FILE={file_name}")
+ 
 
     logging.info(f"Data successfully written to {file_name}")
     logging.info(f"Date range used for filtering: Start: {start_date.strftime('%Y-%m-%d %H:%M:%S %Z')} - End: {end_date.strftime('%Y-%m-%d %H:%M:%S %Z')}")
 
 if __name__ == "__main__":
     main()
+
