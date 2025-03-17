@@ -68,6 +68,8 @@ def is_valid_sales_orders(sales_orders, start_date, end_date):
     invoice_date = parse_date(sales_orders.get('invoiceDate'))
     return invoice_date and start_date <= invoice_date <= end_date
 
+
+
 def process_sales_orders(sales_orders, user_name):
     line_items = sales_orders.get('lineItems', [])
     currency_rate = float(sales_orders.get('currencyRate', 1))
@@ -114,7 +116,7 @@ def process_sales_orders(sales_orders, user_name):
             'lineItemcode': item.get('code', ''),
             'lineItemName': item.get('name', ''),
             'customFieldsorders_1001': orders_1001,
-            'orders': sales_orders.get('orders_1001', ''),
+            'orders': custom_fields.get('orders_1001', ''),
             'lineItemQty': item.get('qty', ''),
             'lineItemoption3': item.get('option3', ''),
             'lineItemUnitPrice': adjusted_unit_price,
