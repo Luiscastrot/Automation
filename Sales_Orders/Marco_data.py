@@ -64,9 +64,8 @@ def calculate_date_range():
 
     return start_date, end_date
 
-def is_valid_sales_orders(sales_orders, start_date, end_date):
-    return sales_orders.get('isApproved') == "true"
-
+def is_valid_sales_orders(sales_orders):
+    return str(sales_orders.get('isApproved')).lower() == "true"
 
 
 def process_sales_orders(sales_orders, user_name):
