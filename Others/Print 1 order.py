@@ -11,7 +11,7 @@ api_key = "d7fa15ce7fde46de82b53fd4dcaea663"  # Replace with your Cin7 API key
 
 # API URL
 BASE_URL = 'https://api.cin7.com/api/v1'
-77
+
 def get_auth_header(username, key):
     credentials = f"{username}:{key}"
     encoded_credentials = base64.b64encode(credentials.encode('utf-8')).decode('utf-8')

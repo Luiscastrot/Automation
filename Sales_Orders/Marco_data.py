@@ -65,8 +65,7 @@ def calculate_date_range():
     return start_date, end_date
 
 def is_valid_sales_orders(sales_orders, start_date, end_date):
-    invoice_date = parse_date(sales_orders.get('invoiceDate'))
-    return invoice_date and start_date <= invoice_date <= end_date
+    return sales_orders.get('isApproved') == "true"
 
 
 
