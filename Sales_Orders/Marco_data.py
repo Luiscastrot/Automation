@@ -165,7 +165,7 @@ def process_user(user):
                 if is_valid_sales_orders(sales_orders, start_date, end_date):
                     all_sales_orderss.extend(process_sales_orders(sales_orders, user['username']))
             except Exception as e:
-                logging.error(f"Error processing sales order: {sales_orders}. Error: {e}")
+                logging.error(f"Error processing sales order {sales_orders.get('reference', 'Unknown Reference')}: {sales_orders}. Error: {e}")
 
         logging.info(f"Page {page} processed for user {user['username']}.")
         page += 1
