@@ -46,6 +46,7 @@ def call_api(url, headers):
 def parse_date(date_string):
     if not date_string:
         return None
+
     try:
         parsed_date = parser.parse(date_string)
         if parsed_date.tzinfo is None or parsed_date.tzinfo.utcoffset(parsed_date) is None:
@@ -53,10 +54,14 @@ def parse_date(date_string):
         else:
             parsed_date = parsed_date.astimezone(pytz.utc)
         return parsed_date
-    except Exception as e:
+    except ValueError as e:
+        # Handle specific parsing errors
         logging.warning(f"Failed to parse date: {date_string}. Error: {e}")
         return None
-
+    except Exception as e:
+        # Catch any unexpected exceptions and log them
+        logging.error(f"Unexpected error parsing date: {date_string}. Error: {e}")
+        return None
 def calculate_date_range():
     # Set the start and end dates for the year 2024
     start_date = datetime.datetime(2025, 1, 1, tzinfo=pytz.utc)  # (Year, Month, Day, Hour, Minute, Second, ...,)
@@ -65,8 +70,17 @@ def calculate_date_range():
     return start_date, end_date
 
 def is_valid_sales_orders(sales_orders, start_date, end_date):
-    invoice_date = parse_date(sales_orders.get('invoiceDate'))
-    return invoice_date and start_date <= invoice_date <= end_date
+    if 'invoiceDate' not in sales_orders:
+        logging.warning("Sales order missing 'invoiceDate'.")
+        return False
+
+    invoice_date = parse_date(sales_orders['invoiceDate'])
+    if invoice_date is None:
+        logging.warning(f"Failed to parse invoice date for sales order {sales_orders.get('reference', 'Unknown Reference')}.")
+        return False
+
+    return start_date <= invoice_date <= end_date
+
 
 def process_sales_orders(sales_orders, user_name):
     line_items = sales_orders.get('lineItems', [])
@@ -145,8 +159,11 @@ def process_user(user):
             break
 
         for sales_orders in data:
-            if is_valid_sales_orders(sales_orders, start_date, end_date):
-                all_sales_orderss.extend(process_sales_orders(sales_orders, user['username']))
+            try:
+                if is_valid_sales_orders(sales_orders, start_date, end_date):
+                    all_sales_orderss.extend(process_sales_orders(sales_orders, user['username']))
+            except Exception as e:
+                logging.error(f"Error processing sales order: {sales_orders}. Error: {e}")
 
         logging.info(f"Page {page} processed for user {user['username']}.")
         page += 1
