@@ -142,9 +142,8 @@ def process_user(user):
             logging.info(f"No more data to fetch for user {user['username']}.")
             break
 
-        for sales_orders in data:
-            if is_valid_sales_orders(sales_orders, start_date, end_date):
-                all_sales_orderss.extend(process_sales_orders(sales_orders, user['username']))
+        def is_valid_sales_orders(sales_orders):
+            return str(sales_orders.get('isApproved')).lower() == "true"
 
         logging.info(f"Page {page} processed for user {user['username']}.")
         page += 1
