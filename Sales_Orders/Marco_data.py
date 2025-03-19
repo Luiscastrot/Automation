@@ -192,9 +192,11 @@ def main():
     # Create DataFrame
     df = pd.DataFrame(all_sales_orderss, columns=fieldnames)
     
-        # Remove timezone from all datetime columns
-    for col in df.select_dtypes(include=['datetime64[ns, UTC]', 'datetime64[ns, tz]']):
+
+# Remove timezone from all datetime columns
+    for col in df.select_dtypes(include=['datetime64[ns, UTC]']):
         df[col] = df[col].dt.tz_localize(None)
+
         
     # Save to Excel
     df.to_excel(file_name, index=False, engine='openpyxl')
