@@ -66,8 +66,8 @@ def parse_date(date_string):
 
 def calculate_date_range():
     # Set the start and end dates for the year 2024
-    start_date = datetime.datetime(2025, 1, 1, tzinfo=pytz.utc)  
-    end_date = datetime.datetime(2025, 1, 31, 23, 59, 59, 999999, tzinfo=pytz.utc)  
+    start_date = datetime.datetime(2024, 1, 1, tzinfo=pytz.utc)  
+    end_date = datetime.datetime(2025, 12, 31, 23, 59, 59, 999999, tzinfo=pytz.utc)  
 
     return start_date, end_date
 
@@ -192,12 +192,6 @@ def main():
     # Create DataFrame
     df = pd.DataFrame(all_sales_orderss, columns=fieldnames)
     
-
-# Remove timezone from all datetime columns
-    for col in df.select_dtypes(include=['datetime64[ns, UTC]']):
-        df[col] = df[col].dt.tz_localize(None)
-
-        
     # Save to Excel
     df.to_excel(file_name, index=False, engine='openpyxl')
 
