@@ -118,21 +118,17 @@ def process_sales_orders(sales_orders, user_name):
         results.append({
             'sourceUser': abbreviated_user_name,
             'reference': sales_orders.get('reference'),
-            'invoiceNumber': sales_orders.get('invoiceNumber'),
-            'customerOrderNo': sales_orders.get('customerOrderNo'),
-            'createdDate': item.get('createdDate', ''),
             'company': sales_orders.get('company'),
             'firstName': sales_orders.get('firstName'),
             'lastName': sales_orders.get('lastName'),
-            'projectName': sales_orders.get('projectName'),
-            'channel': sales_orders.get('source'),
+            'createdDate': item.get('createdDate', ''),
+            'branchId': item.get('branchId',''),
             'currencyCode': sales_orders.get('currencyCode'),
             'lineItemcode': item.get('code', ''),
-            'lineItemName': item.get('name', ''),
-            'customFieldsorders_1001': sales_orders.get('customFields').get('orders_1001'),
             'lineItemQty': item.get('qty', ''),
-            'lineItemoption3': item.get('option3', ''),
             'lineItemUnitPrice': adjusted_unit_price,
+            'lineItemoption3': item.get('option3', ''),
+            'customFieldsorders_1001': sales_orders.get('customFields').get('orders_1001'),
             'lineItemDiscount': adjusted_discount,
             'discountTotal': adjusted_discount_total,            
             'invoiceDate': invoice_date.strftime('%d/%m/%Y') if invoice_date else ''
@@ -176,8 +172,7 @@ def process_user(user):
 def main():
     start_date, end_date = calculate_date_range()
     
-    fieldnames = ['sourceUser','reference', 'invoiceNumber','customerOrderNo','createdDate','company', 'firstName', 'lastName', 'projectName', 
-                  'channel', 'currencyCode','lineItemcode', 'lineItemName','customFieldsorders_1001','lineItemQty','lineItemoption3', 'lineItemUnitPrice', 'lineItemDiscount', 'discountTotal','invoiceDate']
+    fieldnames = ['sourceUser','reference','company', 'firstName', 'lastName','createdDate','branchId','currencyCode','lineItemcode','lineItemQty','lineItemUnitPrice','lineItemoption3',  'customFieldsorders_1001', 'lineItemDiscount', 'discountTotal','invoiceDate']
     
     file_name = f"Sales_Orders_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.xlsx"
 
