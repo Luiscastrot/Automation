@@ -2,7 +2,7 @@ name:  run Marco_data_CSV.py
 
 on:
   workflow_dispatch:
-  schedule:
+ # schedule:
     #- cron: '0 3 * * 1,2,3,4,5,6' # At 03:00, Monday - Saturday (La hora depende de la localización del servidor)
 
 jobs:
