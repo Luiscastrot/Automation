@@ -135,7 +135,7 @@ def process_sales_orders(sales_orders, user_name):
             'lineItemUnitPrice': adjusted_unit_price,
             'lineItemDiscount': adjusted_discount,
             'discountTotal': adjusted_discount_total,            
-            'invoiceDate': invoice_date if invoice_date else None
+            'invoiceDate': invoice_date.strftime('%d/%m/%Y') if invoice_date else ''
         })
     
     return results
@@ -192,6 +192,10 @@ def main():
     # Create DataFrame
     df = pd.DataFrame(all_sales_orderss, columns=fieldnames)
     
+        # Remove timezone from all datetime columns
+    for col in df.select_dtypes(include=['datetime64[ns, UTC]', 'datetime64[ns, tz]']):
+        df[col] = df[col].dt.tz_localize(None)
+        
     # Save to Excel
     df.to_excel(file_name, index=False, engine='openpyxl')
 
