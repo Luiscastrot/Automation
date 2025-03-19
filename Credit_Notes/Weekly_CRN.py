@@ -45,6 +45,7 @@ def call_api(url, headers):
 def parse_date(date_string):
     if not date_string:
         return None
+
     try:
         parsed_date = parser.parse(date_string)
         if parsed_date.tzinfo is None or parsed_date.tzinfo.utcoffset(parsed_date) is None:
@@ -52,8 +53,13 @@ def parse_date(date_string):
         else:
             parsed_date = parsed_date.astimezone(pytz.utc)
         return parsed_date
-    except Exception as e:
+    except ValueError as e:
+        # Handle specific parsing errors
         logging.warning(f"Failed to parse date: {date_string}. Error: {e}")
+        return None
+    except Exception as e:
+        # Catch any unexpected exceptions and log them
+        logging.error(f"Unexpected error parsing date: {date_string}. Error: {e}")
         return None
 
 def calculate_date_range():
@@ -65,10 +71,18 @@ def calculate_date_range():
     last_friday = last_friday.replace(hour=23, minute=59, second=59, microsecond=999999)
     return last_saturday, last_friday
 
-def is_valid_credit_note(credit_note, start_date, end_date):
-    created_date = parse_date(credit_note.get('completedDate'))
-    return created_date and start_date <= created_date <= end_date
 
+def is_valid_credit_note(credit_note, start_date, end_date):
+    if 'completedDate' not in credit_note:
+        logging.warning("Sales order missing 'completedDate'.")
+        return False
+
+    invoice_date = parse_date(credit_note['completedDate'])
+    if invoice_date is None:
+        logging.warning(f"Failed to parse invoice date for sales order {credit_note.get('reference', 'Unknown Reference')}.")
+        return False
+
+    return start_date <= invoice_date <= end_date
 def process_credit_note(credit_note, user_name):
     line_items = credit_note.get('lineItems', [])
     currency_rate = float(credit_note.get('currencyRate', 1))
@@ -145,9 +159,11 @@ def process_user(user):
             break
 
         for credit_note in data:
-            if is_valid_credit_note(credit_note, start_date, end_date):
-                all_credit_notes.extend(process_credit_note(credit_note, user['username']))
-
+            try:
+                if is_valid_credit_note(credit_note, start_date, end_date):
+                    all_credit_notes.extend(process_credit_note(credit_note, user['username']))
+            except Exception as e:
+                logging.error(f"Error processing sales order: {credit_note}. Error: {e}")
         logging.info(f"Page {page} processed for user {user['username']}.")
         page += 1
         time.sleep(0.5)  # Rate limiting
