@@ -89,6 +89,7 @@ def process_sales_orders(sales_orders, user_name):
     line_items = sales_orders.get('lineItems', [])
     currency_rate = float(sales_orders.get('currencyRate', 1))
     invoice_date = parse_date(sales_orders.get('invoiceDate'))
+    created_date = parse_date(sales_orders.get('createdDate'))
     discount_total = sales_orders.get('discountTotal', 0)
    
 
@@ -121,7 +122,7 @@ def process_sales_orders(sales_orders, user_name):
             'company': sales_orders.get('company'),
             'firstName': sales_orders.get('firstName'),
             'lastName': sales_orders.get('lastName'),
-            'createdDate': item.get('createdDate', ''),
+            'createdDate': created_date.strftime('%d/%m/%Y') if created_date else '',
             'branchId': item.get('branchId',''),
             'currencyCode': sales_orders.get('currencyCode'),
             'lineItemcode': item.get('code', ''),
