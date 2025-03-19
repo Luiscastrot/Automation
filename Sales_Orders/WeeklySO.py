@@ -57,11 +57,13 @@ def parse_date(date_string):
         return None
 
 def calculate_date_range():
-    # Set the start and end dates for the year 2024
-    start_date = datetime.datetime(2025, 1, 1, tzinfo=pytz.utc)  # (Year, Month, Day, Hour, Minute, Second, ...,)
-    end_date = datetime.datetime(2025, 12, 31, 23, 59, 59, 999999, tzinfo=pytz.utc)  # (Year, Month, Day, Hour, Minute, Second, ...,)
-
-    return start_date, end_date
+    today = datetime.datetime.now(pytz.utc)
+    days_since_friday = (today.weekday() - 4) % 7
+    last_friday = today - datetime.timedelta(days=days_since_friday)
+    last_saturday = last_friday - datetime.timedelta(days=6)
+    last_saturday = last_saturday.replace(hour=0, minute=0, second=0, microsecond=0)
+    last_friday = last_friday.replace(hour=23, minute=59, second=59, microsecond=999999)
+    return last_saturday, last_friday
 
 def is_valid_sales_orders(sales_orders, start_date, end_date):
     invoice_date = parse_date(sales_orders.get('invoiceDate'))
