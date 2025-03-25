@@ -32,7 +32,7 @@ USERS = [
 
 def classify_entity(row):
     company = str(row["company"]).upper()
-    username = str(row["username"])  # Corrected column name
+    source_user = str(row["sourceUser"])  # Use sourceUser here
     branch_id = str(row["branchId"]).upper()
     
     # User Abbreviations
@@ -44,9 +44,9 @@ def classify_entity(row):
     }
     
     # Get abbreviated username or original if not found
-    abbreviated_user = user_abbreviations.get(username, username)
+    abbreviated_user = user_abbreviations.get(source_user, source_user)
 
-    user_and_branch = f"{abbreviated_user}_{branch_id}"  # Combined username and branch ID
+    user_and_branch = f"{abbreviated_user}_{branch_id}"  # Combined sourceUser and branch ID
 
     # Classification based on company name
     if "ALBERT ROGER" in company:
@@ -133,12 +133,11 @@ def calculate_date_range():
 
 def is_valid_sales_orders(sales_orders, start_date, end_date):
     if 'invoiceDate' not in sales_orders:
-        logging.warning("Sales order missing 'invoiceDate'.")
         return False
 
     invoice_date = parse_date(sales_orders['invoiceDate'])
     if invoice_date is None:
-        logging.warning("Failed to parse invoice date for sales order.")
+  
         return False
 
     return start_date <= invoice_date <= end_date
