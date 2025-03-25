@@ -32,46 +32,52 @@ USERS = [
 
 def classify_entity(row):
     company = str(row["company"]).upper()
-    branch_id = str(row["branchId"]).upper()
-    item_code = str(row["lineItemcode"]).upper()
-    
+    user_and_branch = f"{str(row['branchId']).upper()}_{str(row['lineItemcode']).upper()}"  # Combine branch_id and item_code
+
+    # Classification based on company name
     if "ALBERT ROGER" in company:
         return "ALBERT ROGER IBERICA"
     elif "TESTER" in company:
         return "Xwh"
     elif "CARREFOUR" in company:
         return "XWH"
-    
-    if branch_id.startswith("ARL"):  
-        if branch_id == "ARL726" and item_code == "NBNA":
-            return "P&P"
-        elif branch_id in ["ARL3", "ARL5", "ARL6", "ARL7", "ARL8", "ARL9", "ARL916", "ARL977", "ARL937", "ARL959", "ARL967", "ARL969", "ARL995"]:
-            return "BCN"
-        elif branch_id in ["ARL970", "ARL979"]:
-            return "PCC"
-        elif branch_id == "ARL997":
-            return "DMW Promo" if branch_id == "ARL1008" else "BCN"
-        else:
-            return "BCN"
-    
-    if branch_id == "ARL13":
+
+    # Classification based on combined User_and_Branch
+    if user_and_branch == "726_NBNA":
+        return "P&P"
+    elif user_and_branch in ["3_XYZ", "5_XYZ", "6_XYZ", "7_XYZ", "8_XYZ", "9_XYZ", 
+                             "916_XYZ", "977_XYZ", "937_XYZ", "959_XYZ", 
+                             "967_XYZ", "969_XYZ", "995_XYZ"]:
         return "BCN"
-    if branch_id.startswith("ARF"):
-        if branch_id in ["ARF179", "ARF183", "ARF185", "ARF187", "ARF189", "ARF195", "ARF375", "ARF377", "ARF379", "ARF395", "ARF397", "ARF399"]:
-            return "BCN"
-        elif branch_id in ["ARF197", "ARF201"]:
-            return "NCP"
-        elif branch_id == "ARF203":
-            return "BLN"
-        elif branch_id in ["ARF205", "ARF207", "ARF209", "ARF211", "ARF213", "ARF215"]:
-            return "NCP"
-    
-    if branch_id == "ARN336":
+    elif user_and_branch in ["970_XYZ", "979_XYZ"]:
+        return "PCC"
+    elif user_and_branch == "997_XYZ":
+        return "DMW Promo"
+    elif user_and_branch == "13_XYZ":
         return "BCN"
-    if branch_id == "ARN398" and item_code == "ARN398REF":
+    elif user_and_branch in ["179_XYZ", "183_XYZ", "185_XYZ", 
+                             "187_XYZ", "189_XYZ", 
+                             "195_XYZ", "375_XYZ", 
+                             "377_XYZ", "379_XYZ"]:
+        return "BCN"
+    elif user_and_branch in ["197_XYZ", "201_XYZ"]:
+        return "NCP"
+    elif user_and_branch == "203_XYZ":
+        return "BLN"
+    elif user_and_branch in ["205_XYZ", "207_XYZ", 
+                             "209_XYZ", 
+                             "211_XYZ", "213_XYZ", "215_XYZ"]:
+        return "NCP"
+
+    if user_and_branch == "336_XYZ":
+        return "BCN"
+
+    if user_and_branch == "398_ARN398REF":
         return "LGT"
-    
-    return None  # Default case
+
+    # Add more conditions based on your data and rules
+    return None
+
 
 
 def get_auth_header(username, key):
