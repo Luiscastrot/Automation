@@ -34,6 +34,8 @@ def classify_entity(row):
     company = str(row["company"]).upper()
     source_user = str(row["sourceUser"])  # Use sourceUser here
     branch_id = str(row["branchId"]).upper()
+    
+    # Ensure item_code is retrieved correctly
     item_code = str(row.get("Item Code", "")).upper()
     
     # User Abbreviations
@@ -57,39 +59,37 @@ def classify_entity(row):
     elif "CARREFOUR" in company:
         return "XWH"
 
-  
-   # Check line items if present
+    # Check line items if present
     line_items = row.get('lineItems', [])
 
     for line_item in line_items:
         item_code = str(line_item.get('lineItemcode', '')).upper()
-        if user_and_branch == "ARL_726" and item_code.startswith("NBNA"):
+        if user_and_branch == "ARL726" and item_code.startswith("NBNA"):
             return "P&P"
 
-    # Classification based on combined User_and_Branch
-    if user_and_branch in [ "ARL726","ARL3","ARL916","ARL977", "ARL1007"]:
+    # Classification based on combined user and branch
+    if user_and_branch in ["ARL726", "ARL3", "ARL916", "ARL977", "ARL1007"]:
         return "P&P"
-    elif user_and_branch in [ "ARL777","ARL4","ARL5","ARL863", "ARL47","ARL779","ARL856","ARL875","ARL1019", "ARL937","ARL936","ARIB3","ARF179", "ARF3", "ARF378", 
-                             "ARF262", "ARF402","ARF454"]:
+    elif user_and_branch in ["ARL777", "ARL4", "ARL5", "ARL863", "ARL47", "ARL779", "ARL856", "ARL875",
+                             "ARL1019", "ARL937", "ARL936", "ARIB3", "ARF179", "ARF3", "ARF378",
+                             "ARF262", "ARF402", "ARF454"]:
         return "BCN"
     elif user_and_branch in ["ARL969"]:
         return "PCC"
-    elif user_and_branch in ["ARL970","ARL997"]:
+    elif user_and_branch in ["ARL970", "ARL997"]:
         return "DMW"
     elif user_and_branch == "ARL997":
         return "DMW Promo"
-    elif user_and_branch in ["ARF180","ARNL130","ARNL132","ARNL3","ARNL336"]:
+    elif user_and_branch in ["ARF180", "ARNL130", "ARNL132", "ARNL3", "ARNL336"]:
         return "NCP"
     elif user_and_branch == "ARF184":
         return "BLN"
     elif user_and_branch == "ARF182":
         return "LGI"
-    
     elif user_and_branch == "ARF277":
         return "XWH"
 
-
-    # Add more conditions based on your data and rules
+    # Default case
     return None
 
 
