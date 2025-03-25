@@ -32,7 +32,21 @@ USERS = [
 
 def classify_entity(row):
     company = str(row["company"]).upper()
-    user_and_branch = f"{str(row['branchId']).upper()}_{str(row['lineItemcode']).upper()}"  # Combine branch_id and item_code
+    username = str(row["username"])  # Corrected column name
+    branch_id = str(row["branchId"]).upper()
+    
+    # User Abbreviations
+    user_abbreviations = {
+        "AlbertRogerUK": "ARL",
+        "AlbertRogerNetheEU": "ARNL",
+        "AlbertRogerFrancEU": "ARF",
+        "AlbertRogerIberiEU": "ARIB"
+    }
+    
+    # Get abbreviated username or original if not found
+    abbreviated_user = user_abbreviations.get(username, username)
+
+    user_and_branch = f"{abbreviated_user}_{branch_id}"  # Combined username and branch ID
 
     # Classification based on company name
     if "ALBERT ROGER" in company:
@@ -43,41 +57,40 @@ def classify_entity(row):
         return "XWH"
 
     # Classification based on combined User_and_Branch
-    if user_and_branch == "726_NBNA":
+    if user_and_branch == "ARL_726":
         return "P&P"
-    elif user_and_branch in ["3_XYZ", "5_XYZ", "6_XYZ", "7_XYZ", "8_XYZ", "9_XYZ", 
-                             "916_XYZ", "977_XYZ", "937_XYZ", "959_XYZ", 
-                             "967_XYZ", "969_XYZ", "995_XYZ"]:
+    elif user_and_branch in ["ARL_3", "ARL_5", "ARL_6", "ARL_7", "ARL_8", "ARL_9", 
+                             "ARL_916", "ARL_977", "ARL_937", "ARL_959", 
+                             "ARL_967", "ARL_969", "ARL_995"]:
         return "BCN"
-    elif user_and_branch in ["970_XYZ", "979_XYZ"]:
+    elif user_and_branch in ["ARL_970", "ARL_979"]:
         return "PCC"
-    elif user_and_branch == "997_XYZ":
+    elif user_and_branch == "ARL_997":
         return "DMW Promo"
-    elif user_and_branch == "13_XYZ":
+    elif user_and_branch == "ARL_13":
         return "BCN"
-    elif user_and_branch in ["179_XYZ", "183_XYZ", "185_XYZ", 
-                             "187_XYZ", "189_XYZ", 
-                             "195_XYZ", "375_XYZ", 
-                             "377_XYZ", "379_XYZ"]:
+    elif user_and_branch in ["ARF_179", "ARF_183", "ARF_185", 
+                             "ARF_187", "ARF_189", 
+                             "ARF_195", "ARF_375", 
+                             "ARF_377", "ARF_379"]:
         return "BCN"
-    elif user_and_branch in ["197_XYZ", "201_XYZ"]:
+    elif user_and_branch in ["ARF_197", "ARF_201"]:
         return "NCP"
-    elif user_and_branch == "203_XYZ":
+    elif user_and_branch == "ARF_203":
         return "BLN"
-    elif user_and_branch in ["205_XYZ", "207_XYZ", 
-                             "209_XYZ", 
-                             "211_XYZ", "213_XYZ", "215_XYZ"]:
+    elif user_and_branch in ["ARF_205", "ARF_207", 
+                             "ARF_209", 
+                             "ARF_211", "ARF_213", "ARF_215"]:
         return "NCP"
 
-    if user_and_branch == "336_XYZ":
+    if user_and_branch == "ARN_336":
         return "BCN"
 
-    if user_and_branch == "398_ARN398REF":
+    if user_and_branch == "ARN_398":
         return "LGT"
 
     # Add more conditions based on your data and rules
     return None
-
 
 
 def get_auth_header(username, key):
@@ -105,12 +118,9 @@ def parse_date(date_string):
             parsed_date = parsed_date.astimezone(pytz.utc)
         return parsed_date
     except ValueError as e:
-        # Handle specific parsing errors
-        logging.warning(f"Failed to parse date: {date_string}. Error: {e}")
         return None
     except Exception as e:
-        # Catch any unexpected exceptions and log them
-        logging.error(f"Unexpected error parsing date: {date_string}. Error: {e}")
+  
         return None
 
 
