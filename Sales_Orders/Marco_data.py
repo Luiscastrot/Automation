@@ -52,15 +52,15 @@ def classify_entity(row):
     user_and_branch = f"{abbreviated_user}{branch_id}"  # Combined sourceUser and branch ID
 
     # Classification based on company name
-    if "ALBERT ROGER" in company:
-        return "ALBERT ROGER IBERICA"
+    if "ALBERT ROGER" in company and company != "ALBERT ROGER IBERICA":
+        return "XWh"
     elif "TESTER" in company:
-        return "Xwh"
+        return "XWh"
     elif "CARREFOUR" in company:
         return "XWH"
 
     if f"{abbreviated_user}{branch_id}{item_code[:4]}" == "ARN398RECF":
-        return "ARF -LGI"
+        return source_user + "LGI"
 
     # Check line items if present
     line_items = row.get('lineItems', [])
@@ -73,23 +73,29 @@ def classify_entity(row):
 
     # Classification based on combined user and branch
     if user_and_branch in ["ARL726", "ARL3", "ARL916", "ARL977", "ARL1007"]:
-        return "P&P"
+        return source_user + "P&P"
     elif user_and_branch in ["ARL777", "ARL4", "ARL5", "ARL863", "ARL47", "ARL779", "ARL856", "ARL875",
                              "ARL1019", "ARL937", "ARL936", "ARIB3", "ARF179", "ARF3", "ARF378",
                              "ARF262", "ARF402", "ARF454"]:
-        return "BCN"
+        return source_user +"BCN"
+   
     elif user_and_branch in ["ARL969"]:
-        return "PCC"
+        return source_user +"PCC"
+   
     elif user_and_branch in ["ARL970", "ARL997"]:
-        return "DMW"
+        return source_user +"DMW"
+   
     elif user_and_branch == "ARL997":
-        return "DMW Promo"
+        return source_user +"DMW Promo"
+   
     elif user_and_branch in ["ARF180", "ARNL130", "ARNL132", "ARNL3", "ARNL336"]:
-        return "NCP"
+        return source_user +"NCP"
     elif user_and_branch == "ARF184":
-        return "BLN"
+        return source_user +"BLN"
+   
     elif user_and_branch == "ARF182":
-        return "LGI"
+        return source_user +"LGI"
+   
     elif user_and_branch == "ARF277":
         return "XWH"
 
