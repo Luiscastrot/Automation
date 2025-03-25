@@ -261,7 +261,7 @@ def main():
     df = pd.DataFrame(all_sales_orders, columns=fieldnames)
     
     # Apply classification function
-    df["Autom"] = df.apply(classify_entity, axis=1)
+    df["Warehouse"] = df.apply(classify_entity, axis=1)
     
     # Save to Excel
     df.to_excel(file_name, index=False, engine='openpyxl')
