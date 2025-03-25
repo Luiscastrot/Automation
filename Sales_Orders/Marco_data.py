@@ -167,7 +167,7 @@ def process_sales_orders(sales_orders, user_name):
             'firstName': sales_orders.get('firstName'),
             'lastName': sales_orders.get('lastName'),
             'createdDate': created_date.strftime('%d/%m/%Y') if created_date else '',
-            'branchId': item.get('branchId',''),
+            'branchId': sales_orders.get('branchId',''),
             'currencyCode': sales_orders.get('currencyCode'),
             'lineItemcode': item.get('code', ''),
             'lineItemQty': item.get('qty', ''),
