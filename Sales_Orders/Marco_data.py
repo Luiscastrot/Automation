@@ -34,6 +34,7 @@ def classify_entity(row):
     company = str(row["company"]).upper()
     source_user = str(row["sourceUser"])  # Use sourceUser here
     branch_id = str(row["branchId"]).upper()
+    item_code = str(row[""]).upper()
     
     # User Abbreviations
     user_abbreviations = {
@@ -46,7 +47,7 @@ def classify_entity(row):
     # Get abbreviated username or original if not found
     abbreviated_user = user_abbreviations.get(source_user, source_user)
 
-    user_and_branch = f"{abbreviated_user}_{branch_id}"  # Combined sourceUser and branch ID
+    user_and_branch = f"{abbreviated_user}{branch_id}"  # Combined sourceUser and branch ID
 
     # Classification based on company name
     if "ALBERT ROGER" in company:
@@ -56,37 +57,40 @@ def classify_entity(row):
     elif "CARREFOUR" in company:
         return "XWH"
 
+  
+   # Check line items if present
+    line_items = row.get('lineItems', [])
+
+    for line_item in line_items:
+        item_code = str(line_item.get('lineItemcode', '')).upper()
+        if user_and_branch == "ARL_726" and item_code.startswith("NBNA"):
+            return "P&P"
+
     # Classification based on combined User_and_Branch
-    if user_and_branch == "ARL_726":
+    if user_and_branch in [ "ARL726","ARL3","ARL916","ARL977", "ARL1007"]:
         return "P&P"
-    elif user_and_branch in ["ARL_3", "ARL_5", "ARL_6", "ARL_7", "ARL_8", "ARL_9", 
-                             "ARL_916", "ARL_977", "ARL_937", "ARL_959", 
-                             "ARL_967", "ARL_969", "ARL_995"]:
+    elif user_and_branch in [ "ARL777","ARL4","ARL5","ARL863", "ARL47","ARL779","ARL856","ARL875","ARL1019", "ARL937","ARL936","ARIB3","ARF179", "ARF3", "ARF378", 
+                             "ARF262", "ARF402","ARF454"]:
         return "BCN"
-    elif user_and_branch in ["ARL_970", "ARL_979"]:
+    elif user_and_branch in ["ARL969"]:
         return "PCC"
-    elif user_and_branch == "ARL_997":
+    elif user_and_branch in ["ARL970","ARL997"]:
+        return "DMW"
+    elif user_and_branch == "ARL997":
         return "DMW Promo"
-    elif user_and_branch == "ARL_13":
-        return "BCN"
-    elif user_and_branch in ["ARF_179", "ARF_183", "ARF_185", 
-                             "ARF_187", "ARF_189", 
-                             "ARF_195", "ARF_375", 
-                             "ARF_377", "ARF_379"]:
-        return "BCN"
-    elif user_and_branch in ["ARF_197", "ARF_201"]:
+    elif user_and_branch in ["ARF180","ARN130","ARNLas
         return "NCP"
-    elif user_and_branch == "ARF_203":
+    elif user_and_branch == "ARF203":
         return "BLN"
-    elif user_and_branch in ["ARF_205", "ARF_207", 
-                             "ARF_209", 
-                             "ARF_211", "ARF_213", "ARF_215"]:
+    elif user_and_branch in ["ARL127","ARF205", "ARF207", 
+                             "ARF209", 
+                             "ARF211", "ARF_213", "ARF215"]:
         return "NCP"
 
-    if user_and_branch == "ARN_336":
+    if user_and_branch == "ARN336":
         return "BCN"
 
-    if user_and_branch == "ARN_398":
+    if user_and_branch == "ARN398":
         return "LGT"
 
     # Add more conditions based on your data and rules
@@ -195,6 +199,7 @@ def process_sales_orders(sales_orders, user_name):
         })
     
     return results
+    
 
 def process_user(user):
     headers = get_auth_header(user['username'], user['key'])
