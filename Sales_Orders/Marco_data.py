@@ -34,7 +34,7 @@ def classify_entity(row):
     company = str(row["company"]).upper()
     source_user = str(row["sourceUser"])  # Use sourceUser here
     branch_id = str(row["branchId"]).upper()
-    item_code = str(row[""]).upper()
+    item_code = str(row.get("Item Code", "")).upper()
     
     # User Abbreviations
     user_abbreviations = {
@@ -78,20 +78,16 @@ def classify_entity(row):
         return "DMW"
     elif user_and_branch == "ARL997":
         return "DMW Promo"
-    elif user_and_branch in ["ARF180","ARN130","ARNLas
+    elif user_and_branch in ["ARF180","ARNL130","ARNL132","ARNL3","ARNL336"]:
         return "NCP"
-    elif user_and_branch == "ARF203":
+    elif user_and_branch == "ARF184":
         return "BLN"
-    elif user_and_branch in ["ARL127","ARF205", "ARF207", 
-                             "ARF209", 
-                             "ARF211", "ARF_213", "ARF215"]:
-        return "NCP"
+    elif user_and_branch == "ARF182":
+        return "LGI"
+    
+    elif user_and_branch == "ARF277":
+        return "XWH"
 
-    if user_and_branch == "ARN336":
-        return "BCN"
-
-    if user_and_branch == "ARN398":
-        return "LGT"
 
     # Add more conditions based on your data and rules
     return None
