@@ -72,7 +72,6 @@ def calculate_date_range():
 
 def is_valid_sales_orders(sales_orders, start_date, end_date):
     if 'invoiceDate' not in sales_orders:
-        logging.warning("Sales order missing 'invoiceDate'.")
         return False
 
     invoice_date = parse_date(sales_orders['invoiceDate'])
