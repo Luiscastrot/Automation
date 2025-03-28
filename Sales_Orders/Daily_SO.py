@@ -203,6 +203,10 @@ def main():
 
     logging.info(f"Data successfully written to {file_name}")
     logging.info(f"Date range used for filtering: Start: {start_date.strftime('%Y-%m-%d %H:%M:%S %Z')} - End: {end_date.strftime('%Y-%m-%d %H:%M:%S %Z')}")
+   
+    for user in USERS:
+        user_usage = get_api_usage(user['username'])
+        logging.info(f"Final API Usage for {user['username']}: {user_usage['api_calls']} calls")
     logging.info(f"Final API Usage: {get_api_usage()['api_calls']} calls")
 
 if __name__ == "__main__":
