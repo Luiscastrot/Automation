@@ -8,7 +8,7 @@ import pytz
 import logging
 import os
 from concurrent.futures import ThreadPoolExecutor
-from api_tracker import log_api_call, reset_tracker, get_api_usage
+from api_tracker import log_api_call, get_api_usage
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -206,6 +206,6 @@ def main():
 
     logging.info(f"Data successfully written to {file_name}")
     logging.info(f"Date range used for filtering: Start: {start_date.strftime('%Y-%m-%d %H:%M:%S %Z')} - End: {end_date.strftime('%Y-%m-%d %H:%M:%S %Z')}")
-
+    logging.info(f"Final API Usage: {get_api_usage()['api_calls']} calls")
 if __name__ == "__main__":
     main()

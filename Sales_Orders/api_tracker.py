@@ -8,6 +8,7 @@ LOCK = threading.Lock()  # Prevent race conditions in multithreading
 
 def initialize_tracker():
     """Initialize the tracker file if it doesn't exist."""
+    print("Initializing tracker...")
     with LOCK:
         try:
             with open(TRACKER_FILE, "r") as f:
@@ -36,6 +37,9 @@ def log_api_call():
 
         now = time.time()
         
+        # Check if API call limits are being reached
+        print(f"Checking API limits at {now}...")
+        
         # Reset counters if limits exceeded
         if now - data["last_reset"] >= 86400:  # Reset daily limit after 24h
             data["api_calls"] = 0
@@ -60,20 +64,20 @@ def log_api_call():
             time.sleep(60)
             return False
 
-        # Ensure we don't exceed 3/sec
-        while data["minute_calls"] % 3 == 0:
-            time.sleep(1)
-
-        # Increment counters
+        # Increment counters and save data
         data["api_calls"] += 1
         data["minute_calls"] += 1
         data["hour_calls"] += 1
 
-        # Save updated data
         with open(TRACKER_FILE, "w") as f:
             json.dump(data, f)
 
+        # Ensure we don't exceed 3 calls per second
         print(f"API Call Count: {data['api_calls']} (Minute: {data['minute_calls']}, Hour: {data['hour_calls']})")
+        
+        # Sleep for 1 second to avoid exceeding rate limit (3 calls per second)
+        time.sleep(1)
+        
         return True  # Indicate success
 
 def get_api_usage():
@@ -96,3 +100,23 @@ def reset_tracker():
         }
         with open(TRACKER_FILE, "w") as f:
             json.dump(data, f)
+
+def main():
+    # Sample usage
+    print("Starting the tracker script...")
+    initialize_tracker()
+    result = log_api_call()
+    if result:
+        print("API call logged successfully.")
+    else:
+        print("API call limit reached.")
+
+    # Get current usage
+    usage = get_api_usage()
+    print(f"Current API usage: {usage}")
+
+    # Reset tracker if needed
+    # reset_tracker()  # Uncomment this if you want to reset the tracker manually
+
+if __name__ == "__main__":
+    main()
