@@ -146,27 +146,12 @@ def process_user(user):
     all_sales_orderss = []
     page = 1
 
-        # Log the initial API usage
-    initial_usage = get_api_usage()
-    print(f"Starting {user['username']} with API Usage: {initial_usage['api_calls']} calls")
+    print(f"Starting {user['username']} with API Usage: {get_api_usage()['api_calls']} calls")
 
     while True:
-         # Check API usage before making a new call
-        usage = get_api_usage()
-        if usage['api_calls'] >= 4500:  # Leave some buffer
-            logging.warning("Approaching API limit! Sleeping to avoid exceeding it...")
-            time.sleep(3600)  # Wait 1 hour
-            
-            # Check if API tracker needs reset
-            now = time.time()
-            if now - usage['last_reset'] >= 3600:
-                print("API Usage Limit Reached! Resetting tracker...")
-                reset_tracker()  # Reset the tracker
-                log_api_call()  # Log the reset action
-                logging.info("API Usage Reset Successful")
-            else:
-                 logging.info("Sleeping...")
-                 time.sleep(3600)
+        # Check and log API call before making a request
+        if not log_api_call():
+            continue  # Skip API call if limit reached
         
         url = f'{BASE_URL}?fields={FIELDS}&page={page}&rows={ROWS_PER_PAGE}'
         logging.info(f"Fetching page {page} for user {user['username']}...")
@@ -189,14 +174,7 @@ def process_user(user):
 
         logging.info(f"Page {page} processed for user {user['username']}.")
         page += 1
-        time.sleep(0.5)  # Rate limiting
-
-        # Check API usage after processing each page
-        usage = get_api_usage()
-        if usage['api_calls'] >= 5000:
-            logging.warning("Approaching API limit! Consider reducing calls.")
-            time.sleep(3600)  # Wait 1 hour
-
+        time.sleep(0.5)  # Enforce rate limiting
 
     return all_sales_orderss
 
