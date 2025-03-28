@@ -63,6 +63,7 @@ def parse_date(date_string):
         # Catch any unexpected exceptions and log them
         logging.error(f"Unexpected error parsing date: {date_string}. Error: {e}")
         return None
+
 def calculate_date_range():
     # Set the start and end dates for the year 2024
     start_date = datetime.datetime(2025, 1, 1, tzinfo=pytz.utc)  # (Year, Month, Day, Hour, Minute, Second, ...,)
@@ -80,14 +81,13 @@ def is_valid_sales_orders(sales_orders, start_date, end_date):
 
     return start_date <= invoice_date <= end_date
 
-
 def process_sales_orders(sales_orders, user_name):
     line_items = sales_orders.get('lineItems', [])
     currency_rate = float(sales_orders.get('currencyRate', 1))
     invoice_date = parse_date(sales_orders.get('invoiceDate'))
     discount_total = sales_orders.get('discountTotal', 0)
 
-     # Create a dictionary to map full names to abbreviations
+    # Create a dictionary to map full names to abbreviations
     user_abbreviations = {
         "AlbertRogerUK": "ARL",
         "AlbertRogerNetheEU": "ARNL",
@@ -98,7 +98,6 @@ def process_sales_orders(sales_orders, user_name):
     # Get the abbreviation for the user_name, or use the original if not found
     abbreviated_user_name = user_abbreviations.get(user_name, user_name)
 
-   
     results = []
     num_products = len(line_items)
     
@@ -112,28 +111,26 @@ def process_sales_orders(sales_orders, user_name):
         # Distribute discountTotal across all products
         adjusted_discount_total = round((discount_total / num_products) * currency_rate, 2)
 
-
         results.append({
             'sourceUser': abbreviated_user_name,
             'reference': sales_orders.get('reference'),
-            'invoiceNumber':sales_orders.get('invoiceNumber'),
-            'customerOrderNo':sales_orders.get('customerOrderNo'),
-            'createdDate': item.get('createdDate',''),
+            'invoiceNumber': sales_orders.get('invoiceNumber'),
+            'customerOrderNo': sales_orders.get('customerOrderNo'),
+            'createdDate': item.get('createdDate', ''),
             'company': sales_orders.get('company'),
             'firstName': sales_orders.get('firstName'),
             'lastName': sales_orders.get('lastName'),
             'projectName': sales_orders.get('projectName'),
             'channel': sales_orders.get('source'),
             'currencyCode': sales_orders.get('currencyCode'),
-            'lineItemcode':item.get('code',''),
+            'lineItemcode': item.get('code', ''),
             'lineItemName': item.get('name', ''),
             'lineItemQty': item.get('qty', ''),
-            'lineItemoption3': item.get('option3',''),
+            'lineItemoption3': item.get('option3', ''),
             'lineItemUnitPrice': adjusted_unit_price,
             'lineItemDiscount': adjusted_discount,
-            'discountTotal': adjusted_discount_total,            
+            'discountTotal': adjusted_discount_total,
             'invoiceDate': invoice_date.strftime('%d/%m/%Y') if invoice_date else ''
-
         })
     
     return results
@@ -141,7 +138,7 @@ def process_sales_orders(sales_orders, user_name):
 def process_user(user):
     headers = get_auth_header(user['username'], user['key'])
     start_date, end_date = calculate_date_range()
-    all_sales_orderss = []
+    all_sales_orders = []
     page = 1
 
     print(f"Starting {user['username']} with API Usage: {get_api_usage(user['username'])['api_calls']} calls")
@@ -149,8 +146,9 @@ def process_user(user):
     while True:
         # Check and log API call before making a request
         if not log_api_call(user['username']):
+            logging.info(f"API limit reached for {user['username']}. Waiting for the next opportunity.")
             continue  # Skip API call if limit reached
-        
+
         url = f'{BASE_URL}?fields={FIELDS}&page={page}&rows={ROWS_PER_PAGE}'
         logging.info(f"Fetching page {page} for user {user['username']}...")
 
@@ -166,7 +164,7 @@ def process_user(user):
         for sales_orders in data:
             try:
                 if is_valid_sales_orders(sales_orders, start_date, end_date):
-                    all_sales_orderss.extend(process_sales_orders(sales_orders, user['username']))
+                    all_sales_orders.extend(process_sales_orders(sales_orders, user['username']))
             except Exception as e:
                 logging.error(f"Error processing sales order: {sales_orders}. Error: {e}")
 
@@ -174,8 +172,7 @@ def process_user(user):
         page += 1
         time.sleep(0.5)  # Enforce rate limiting
 
-    return all_sales_orderss
-
+    return all_sales_orders
 
 def main():
     start_date, end_date = calculate_date_range()
@@ -188,25 +185,25 @@ def main():
     env_file = os.getenv('GITHUB_ENV') 
     with open(env_file, "a") as env_file:    
         env_file.write(f"ENV_CUSTOM_DATE_FILE={file_name}")
- 
 
-    all_sales_orderss = []
+    all_sales_orders = []
 
     # Process users in parallel
     with ThreadPoolExecutor(max_workers=4) as executor:
         results = executor.map(process_user, USERS)
-        for user_sales_orderss in results:
-            all_sales_orderss.extend(user_sales_orderss)
+        for user_sales_orders in results:
+            all_sales_orders.extend(user_sales_orders)
 
     # Write all sales orders to a single CSV file
     with open(file_name, mode='w', newline='', encoding='utf-8') as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
-        for sales_orders in all_sales_orderss:
+        for sales_orders in all_sales_orders:
             writer.writerow(sales_orders)
 
     logging.info(f"Data successfully written to {file_name}")
     logging.info(f"Date range used for filtering: Start: {start_date.strftime('%Y-%m-%d %H:%M:%S %Z')} - End: {end_date.strftime('%Y-%m-%d %H:%M:%S %Z')}")
     logging.info(f"Final API Usage: {get_api_usage()['api_calls']} calls")
+
 if __name__ == "__main__":
     main()

@@ -1,36 +1,24 @@
 import time
-import json
 import threading
 
-# File-based persistence for API usage per user
-TRACKER_FILE = "api_usage.json"
+# Constants for rate limits
+DAILY_LIMIT = 5000
+MINUTE_LIMIT = 60
+HOUR_LIMIT = 3600
+
 LOCK = threading.Lock()  # Prevent race conditions in multithreading
 
-def initialize_tracker():
-    """Initialize the tracker file if it doesn't exist."""
-    with LOCK:
-        try:
-            with open(TRACKER_FILE, "r") as f:
-                data = json.load(f)
-        except (FileNotFoundError, json.JSONDecodeError):
-            # Initialize an empty tracker if the file doesn't exist
-            data = {}
-            with open(TRACKER_FILE, "w") as f:
-                json.dump(data, f)
+# In-memory dictionary to track usage for each user
+user_data = {}
 
 def log_api_call(user_name):
     """Log an API call and enforce limits for a specific user."""
-    initialize_tracker()
-
     with LOCK:
-        with open(TRACKER_FILE, "r") as f:
-            data = json.load(f)
-
         now = time.time()
 
         # Initialize the user entry if it doesn't exist
-        if user_name not in data:
-            data[user_name] = {
+        if user_name not in user_data:
+            user_data[user_name] = {
                 "api_calls": 0,
                 "minute_calls": 0,
                 "hour_calls": 0,
@@ -39,74 +27,65 @@ def log_api_call(user_name):
                 "last_hour_reset": now,
             }
 
-        user_data = data[user_name]
+        user = user_data[user_name]
 
         # Reset counters if limits exceeded
-        if now - user_data["last_reset"] >= 86400:  # Reset daily limit after 24h
-            user_data["api_calls"] = 0
-            user_data["last_reset"] = now
+        if now - user["last_reset"] >= 86400:  # Reset daily limit after 24 hours
+            user["api_calls"] = 0
+            user["last_reset"] = now
 
-        if now - user_data["last_minute_reset"] >= 60:  # Reset minute limit every 60s
-            user_data["minute_calls"] = 0
-            user_data["last_minute_reset"] = now
+        if now - user["last_minute_reset"] >= 60:  # Reset minute limit every 60 seconds
+            user["minute_calls"] = 0
+            user["last_minute_reset"] = now
 
-        if now - user_data["last_hour_reset"] >= 3600:  # Reset hourly limit every hour
-            user_data["hour_calls"] = 0
-            user_data["last_hour_reset"] = now
+        if now - user["last_hour_reset"] >= 3600:  # Reset hourly limit every hour
+            user["hour_calls"] = 0
+            user["last_hour_reset"] = now
 
-        # Check rate limits
-        if user_data["api_calls"] >= 5000:
+        # Check if daily, minute or hour limits are reached
+        if user["api_calls"] >= DAILY_LIMIT:
             print(f"Daily API limit reached for {user_name}. Sleeping for 1 hour...")
-            time.sleep(3600)
+            time.sleep(3600)  # Sleep for 1 hour if daily limit reached
+            user["api_calls"] = 0  # Reset after sleep to avoid blocking further requests
             return False
-        
-        if user_data["minute_calls"] >= 60:
+
+        if user["minute_calls"] >= MINUTE_LIMIT:
             print(f"Minute API limit reached for {user_name}. Sleeping for 1 minute...")
-            time.sleep(60)
+            time.sleep(60)  # Sleep for 1 minute if minute limit reached
+            user["minute_calls"] = 0  # Reset after sleep
             return False
 
-        # Increment counters and save data
-        user_data["api_calls"] += 1
-        user_data["minute_calls"] += 1
-        user_data["hour_calls"] += 1
+        # Increment counters for valid API calls
+        user["api_calls"] += 1
+        user["minute_calls"] += 1
+        user["hour_calls"] += 1
 
-        with open(TRACKER_FILE, "w") as f:
-            json.dump(data, f)
+        # Sleep for 1 second to ensure we don't exceed rate limits (3 calls per second)
+        print(f"API Call Count for {user_name}: {user['api_calls']} (Minute: {user['minute_calls']}, Hour: {user['hour_calls']})")
+        
+        time.sleep(1)  # Sleep for 1 second between calls to avoid overloading the API
 
-        # Ensure we don't exceed 3 calls per second
-        print(f"API Call Count for {user_name}: {user_data['api_calls']} (Minute: {user_data['minute_calls']}, Hour: {user_data['hour_calls']})")
-        
-        # Sleep for 1 second to avoid exceeding rate limit (3 calls per second)
-        time.sleep(1)
-        
         return True  # Indicate success
 
 def get_api_usage(user_name):
     """Get current API usage for a specific user."""
-    initialize_tracker()
-    with open(TRACKER_FILE, "r") as f:
-        data = json.load(f)
-        return data.get(user_name, {"api_calls": 0, "minute_calls": 0, "hour_calls": 0})
+    with LOCK:
+        if user_name in user_data:
+            return user_data[user_name]
+        else:
+            return {"api_calls": 0, "minute_calls": 0, "hour_calls": 0}
 
 def reset_tracker(user_name):
     """Reset the tracker manually for a specific user if needed."""
     with LOCK:
-        now = time.time()
-        data = {
+        user_data[user_name] = {
             "api_calls": 0,
             "minute_calls": 0,
             "hour_calls": 0,
-            "last_reset": now,
-            "last_minute_reset": now,
-            "last_hour_reset": now,
+            "last_reset": time.time(),
+            "last_minute_reset": time.time(),
+            "last_hour_reset": time.time(),
         }
-        with open(TRACKER_FILE, "r") as f:
-            tracker_data = json.load(f)
-        
-        tracker_data[user_name] = data
-        
-        with open(TRACKER_FILE, "w") as f:
-            json.dump(tracker_data, f)
 
 def main():
     # Sample usage
@@ -114,9 +93,6 @@ def main():
 
     # Example of using specific usernames for tracking
     user_name = "AlbertRogerUK"  # Set the user for testing
-
-    # Initialize the tracker for the first time
-    initialize_tracker()
 
     # Log an API call for the specific user
     result = log_api_call(user_name)
