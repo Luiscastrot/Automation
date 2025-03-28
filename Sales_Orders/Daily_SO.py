@@ -207,7 +207,6 @@ def main():
     for user in USERS:
         user_usage = get_api_usage(user['username'])
         logging.info(f"Final API Usage for {user['username']}: {user_usage['api_calls']} calls")
-    logging.info(f"Final API Usage: {get_api_usage()['api_calls']} calls")
 
 if __name__ == "__main__":
     main()
