@@ -108,23 +108,29 @@ def reset_tracker(user_name):
         with open(TRACKER_FILE, "w") as f:
             json.dump(tracker_data, f)
 
-
 def main():
     # Sample usage
     print("Starting the tracker script...")
+
+    # Example of using specific usernames for tracking
+    user_name = "AlbertRogerUK"  # Set the user for testing
+
+    # Initialize the tracker for the first time
     initialize_tracker()
-    result = log_api_call()
+
+    # Log an API call for the specific user
+    result = log_api_call(user_name)
     if result:
         print("API call logged successfully.")
     else:
         print("API call limit reached.")
 
-    # Get current usage
-    usage = get_api_usage()
-    print(f"Current API usage: {usage}")
+    # Get current usage for the specific user
+    usage = get_api_usage(user_name)
+    print(f"Current API usage for {user_name}: {usage}")
 
-    # Reset tracker if needed
-    # reset_tracker()  # Uncomment this if you want to reset the tracker manually
+    # Reset tracker if needed for that specific user
+    # reset_tracker(user_name)  # Uncomment this if you want to reset the tracker manually
 
 if __name__ == "__main__":
     main()
