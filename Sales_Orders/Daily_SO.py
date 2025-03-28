@@ -144,11 +144,11 @@ def process_user(user):
     all_sales_orderss = []
     page = 1
 
-    print(f"Starting {user['username']} with API Usage: {get_api_usage()['api_calls']} calls")
+    print(f"Starting {user['username']} with API Usage: {get_api_usage(user['username'])['api_calls']} calls")
 
     while True:
         # Check and log API call before making a request
-        if not log_api_call():
+        if not log_api_call(user['username']):
             continue  # Skip API call if limit reached
         
         url = f'{BASE_URL}?fields={FIELDS}&page={page}&rows={ROWS_PER_PAGE}'
@@ -175,6 +175,7 @@ def process_user(user):
         time.sleep(0.5)  # Enforce rate limiting
 
     return all_sales_orderss
+
 
 def main():
     start_date, end_date = calculate_date_range()
