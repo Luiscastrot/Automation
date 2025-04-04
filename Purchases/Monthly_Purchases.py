@@ -58,8 +58,8 @@ def parse_date(date_string):
 
 def calculate_date_range():
     # Set the start and end dates for January 2025
-    start_date = datetime.datetime(2025, 2, 1, tzinfo=pytz.utc)
-    end_date = datetime.datetime(2025, 2, 28, 23, 59, 59, 999999, tzinfo=pytz.utc)
+    start_date = datetime.datetime(2025, 3, 1, tzinfo=pytz.utc)
+    end_date = datetime.datetime(2025, 3, 31, 23, 59, 59, 999999, tzinfo=pytz.utc)
     return start_date, end_date
 
 def is_valid_purchase_order(purchase_order, start_date, end_date):
