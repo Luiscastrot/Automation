@@ -1,0 +1,14 @@
+import base64
+
+def encode_api_credentials(username, api_key):
+    # Combine username and API key with colon
+    credentials = f"{username}:{api_key}"
+    # Convert to bytes and encode in base64
+    base64_credentials = base64.b64encode(credentials.encode('utf-8')).decode('utf-8')
+    return base64_credentials
+
+# Example usage
+username = "myAPIuser"
+api_key = "mySecretKey123"
+encoded_credentials = encode_api_credentials(username, api_key)
+print(f"Authorization header value: Basic {encoded_credentials}")
