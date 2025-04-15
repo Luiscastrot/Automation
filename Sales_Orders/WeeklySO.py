@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Configuration
 BASE_URL = 'https://api.cin7.com/api/v1/SalesOrders'
-FIELDS = 'id,reference,customerOrderNo,salesReference,invoiceDate,createdDate,company,firstName,lastName,projectName,source,currencyCode,currencyRate,lineItems,discountTotal,completedDate,invoiceNumber'
+FIELDS = 'id,reference,customerOrderNo,salesReference,invoiceDate,createdDate,company,firstName,lastName,projectName,source,currencyCode,currencyRate,lineItems,discountTotal,completedDate,invoiceNumber,taxRate'
 ROWS_PER_PAGE = 250
 
 ARL_KEY = os.environ["ARL_KEY"]
@@ -125,6 +125,7 @@ def process_sales_orders(sales_orders, user_name):
             'lastName': sales_orders.get('lastName'),
             'projectName': sales_orders.get('projectName'),
             'channel': sales_orders.get('source'),
+            'taxRate':sales_orders.get('taxRate'),
             'currencyCode': sales_orders.get('currencyCode'),
             'lineItemcode':item.get('code',''),
             'lineItemName': item.get('name', ''),
@@ -175,7 +176,7 @@ def main():
     start_date, end_date = calculate_date_range()
     
     fieldnames = ['sourceUser','reference', 'invoiceNumber','customerOrderNo','createdDate','company', 'firstName', 'lastName', 'projectName', 
-                  'channel', 'currencyCode','lineItemcode', 'lineItemName','lineItemQty','lineItemoption3', 'lineItemUnitPrice', 'lineItemDiscount', 'discountTotal','invoiceDate']
+                  'channel','taxRate', 'currencyCode','lineItemcode', 'lineItemName','lineItemQty','lineItemoption3', 'lineItemUnitPrice', 'lineItemDiscount', 'discountTotal','invoiceDate']
     
     file_name = f"Sales_Orders_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"
 
