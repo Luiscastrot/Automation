@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Configuration
 BASE_URL = 'https://api.cin7.com/api/v1/SalesOrders'
-FIELDS = 'id,reference,customerOrderNo,salesReference,invoiceDate,createdDate,company,firstName,lastName,projectName,source,currencyCode,currencyRate,deliveryCountry,branchId,lineItems,discountTotal,completedDate,invoiceNumber,taxRate'
+FIELDS = 'id,reference,customerOrderNo,salesReference,invoiceDate,createdDate,company,firstName,lastName,projectName,source,currencyCode,currencyRate,deliveryCountry,branchId,lineItems,discountTotal,completedDate,invoiceNumber,taxRate,accountingAttributes'
 ROWS_PER_PAGE = 250
 
 ARL_KEY = os.environ["ARL_KEY"]
@@ -113,6 +113,7 @@ def process_sales_orders(sales_orders, user_name):
 
         results.append({
             'sourceUser': abbreviated_user_name,
+            'accountingAttributes':sales_orders.get('accountingAttributes').get('accountingImportStatus'),
             'reference': sales_orders.get('reference'),
             'invoiceNumber': sales_orders.get('invoiceNumber'),
             'customerOrderNo': sales_orders.get('customerOrderNo'),
@@ -180,7 +181,7 @@ def process_user(user):
 def main():
     start_date, end_date = calculate_date_range()
     
-    fieldnames = ['sourceUser','reference', 'invoiceNumber','customerOrderNo','createdDate','company', 'firstName', 'lastName', 'projectName', 
+    fieldnames = ['sourceUser','accountingAttributes','reference', 'invoiceNumber','customerOrderNo','createdDate','company', 'firstName', 'lastName', 'projectName', 
                   'channel', 'taxRate','currencyCode','deliveryCountry','branchId','lineItemcode', 'lineItemName','lineItemQty','lineItemoption3', 'lineItemUnitPrice', 'lineItemDiscount', 'discountTotal','invoiceDate']
     
     file_name = f"Sales_Orders_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"
