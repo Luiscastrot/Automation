@@ -149,7 +149,8 @@ def main():
     'lineItemcode', 'lineItemName',   'lineItemQty',  'lineItemUnitPrice', 'lineItemDiscount','lineItemoption3', 'invoiceDate'] 
     
     file_name = f"Sales_Orders_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"  
-
+    env_file = os.getenv('GITHUB_ENV')
+    
     if env_file:
         try:
             with open(env_file, "a") as env_file:    
