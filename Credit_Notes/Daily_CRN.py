@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Configuration
 BASE_URL = 'https://api.cin7.com/api/v1/CreditNotes'
-FIELDS = 'id,reference,company,firstName,lastName,projectName,source,currencyCode,currencyRate,lineItems,completedDate,invoiceNumber'
+FIELDS = 'id,reference,company,firstName,lastName,projectName,source,currencyCode,currencyRate,lineItems,completedDate,invoiceNumber,accountingAttributes'
 ROWS_PER_PAGE = 250
 
 ARL_KEY = os.environ["ARL_KEY"]
@@ -116,6 +116,7 @@ def process_credit_note(credit_note, user_name):
 
         results.append({
             'sourceUser': abbreviated_user_name,
+            'accountingAttributes':credit_note.get('accountingAttributes').get('accountingImportStatus'),
             'reference': credit_note.get('reference'),
             'creditNoteNumber':credit_note.get('creditNoteNumber'),
             'salesReference': credit_note.get('salesReference'),
@@ -173,7 +174,7 @@ def process_user(user):
 def main():
     start_date, end_date = calculate_date_range()
     
-    fieldnames = ['sourceUser','reference','creditNoteNumber','salesReference','createdDate', 'company', 'firstName', 'lastName', 'projectName', 
+    fieldnames = ['sourceUser','accountingAttributes','reference','creditNoteNumber','salesReference','createdDate', 'company', 'firstName', 'lastName', 'projectName', 
                   'channel', 'currencyCode', 'lineItemcode', 'lineItemName','lineItemQty','lineItemoption3', 'lineItemUnitPrice', 'lineItemDiscount', 'discountTotal','completedDate']
     
     file_name = f"Credit_Notes_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"
