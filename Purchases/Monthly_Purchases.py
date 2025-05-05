@@ -59,7 +59,7 @@ def parse_date(date_string):
 def calculate_date_range():
     # Set the start and end dates for January 2025
     start_date = datetime.datetime(2025, 4, 1, tzinfo=pytz.utc)
-    end_date = datetime.datetime(2025, 3, 30, 23, 59, 59, 999999, tzinfo=pytz.utc)
+    end_date = datetime.datetime(2025, 4, 30, 23, 59, 59, 999999, tzinfo=pytz.utc)
     return start_date, end_date
 
 def is_valid_purchase_order(purchase_order, start_date, end_date):
@@ -143,13 +143,13 @@ def process_user(user):
     return all_purchase_orders
 
 def main():
-    
+    start_date, end_date = calculate_date_range()
     
     fieldnames = ['downloadSource', 'sourceUser', 'reference', 'company', 'firstName', 'lastName','projectName','source','currencyCode', 
     'lineItemcode', 'lineItemName',   'lineItemQty',  'lineItemUnitPrice', 'lineItemDiscount','lineItemoption3', 'invoiceDate'] 
     
-    file_name = f"purchase_orders_LY.csv"
-    env_file = os.getenv('GITHUB_ENV')
+    file_name = f"Sales_Orders_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"  
+
     if env_file:
         try:
             with open(env_file, "a") as env_file:    
