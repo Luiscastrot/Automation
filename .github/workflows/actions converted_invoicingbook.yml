@@ -31,11 +31,11 @@ jobs:
           OUTPUT_FILE=$(python Others/Excel_converter.py | tail -n 1)
           echo "output_file=$OUTPUT_FILE" >> $GITHUB_OUTPUT
 
-      - name: Upload File to Dropbox
-        uses: ./upload-dropbox-action
-        with:
-          DROPBOX_APP_KEY: ${{ secrets.DROPBOX_APP_KEY }}
-          DROPBOX_APP_SECRET: ${{ secrets.DROPBOX_APP_SECRET }}
-          DROPBOX_REFRESH_TOKEN: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
-          SOURCE_PATH: ${{env.ENV_CUSTOM_DATE_FILE}}
-          DEST_PATH: /carpeta_de_prueba/${{env.ENV_CUSTOM_DATE_FILE}}
+        - name: Upload File to Dropbox
+          uses: ./upload-dropbox-action
+          with:
+            DROPBOX_APP_KEY: ${{ secrets.DROPBOX_APP_KEY }}
+            DROPBOX_APP_SECRET: ${{ secrets.DROPBOX_APP_SECRET }}
+            DROPBOX_REFRESH_TOKEN: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
+            SOURCE_PATH: ${{ steps.run_script.outputs.output_file }}
+            DEST_PATH: /carpeta_de_prueba/${{ steps.run_script.outputs.output_file }}
