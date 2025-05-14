@@ -50,3 +50,5 @@ with pd.ExcelWriter(base_filename) as writer:
         df.to_excel(writer, sheet_name=sheet_name, index=False, header=False)
 
 print(f"Conversion to XLSX completed. Output file: {base_filename}")
+print(base_filename)  # Print only the filename on the last line
+
