@@ -27,9 +27,8 @@ jobs:
         id: run_script
         env:
           INVOICING_BOOK_URL: ${{ secrets.INVOICING_BOOK_URL }}
-        run: |
-          OUTPUT_FILE=$(python Others/Excel_converter.py | tail -n 1)
-          echo "output_file=$OUTPUT_FILE" >> $GITHUB_OUTPUT
+        run: python Excel_converter/Daily_SO.py
+
 
         - name: Upload File to Dropbox
           uses: ./upload-dropbox-action
