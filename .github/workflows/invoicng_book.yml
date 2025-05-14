@@ -1,17 +1,19 @@
-name: run Excel_converter.py
+name: invoicng_book.yml
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 10 * * 6,0,1' # At 10:00 UTC on Saturday, Sunday, Monday
+    - cron: '0 10 * * 6,0,1'  # At 10:00 UTC on Saturday, Sunday, Monday
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v4
+      - name: Setup Python 3.10
+        uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
@@ -20,22 +22,20 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run Python script
+      - name: Convert XLSB to XLSX
         env:
           INVOICING_BOOK_URL: ${{ secrets.INVOICING_BOOK_URL }}
+          TARGET_FOLDER: ""  # Optional: specify folder if needed
         run: python Others/Excel_converter.py
 
       - name: List files for debugging
         run: ls -la
 
-      - name: Show ENV_CUSTOM_DATE_FILE variable
-        run: echo "Converted file is $ENV_CUSTOM_DATE_FILE"
-
-      - name: Upload File to Dropbox
+      - name: Upload converted file to Dropbox
         uses: ./upload-dropbox-action
         with:
           DROPBOX_APP_KEY: ${{ secrets.DROPBOX_APP_KEY }}
           DROPBOX_APP_SECRET: ${{ secrets.DROPBOX_APP_SECRET }}
           DROPBOX_REFRESH_TOKEN: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
-          SOURCE_PATH: ${{ env.ENV_CUSTOM_DATE_FILE }}
-          DEST_PATH: /carpeta_de_prueba/${{ env.ENV_CUSTOM_DATE_FILE }}
+          SOURCE_PATH: converted_output.xlsx   # Adjust if TARGET_FOLDER used
+          DEST_PATH: /carpeta_de_prueba/converted_output.xlsx
