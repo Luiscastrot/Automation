@@ -27,7 +27,7 @@ jobs:
         id: run_script
         env:
           INVOICING_BOOK_URL: ${{ secrets.INVOICING_BOOK_URL }}
-        run: python Excel_converter/Daily_SO.py
+        run: python Others/DailExcel_convertery_SO.py
 
 
         - name: Upload File to Dropbox
