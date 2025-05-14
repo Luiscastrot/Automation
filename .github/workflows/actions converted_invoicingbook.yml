@@ -25,10 +25,7 @@ jobs:
           
       - name: execute py script
         env:
-          ARIB_KEY: ${{ secrets.ARIB_KEY }}
-          ARL_KEY: ${{ secrets.ARL_KEY }}
-          ARNL_KEY: ${{ secrets.ARNL_KEY }}
-          ARF_KEY: ${{ secrets.ARF_KEY }}
+          INVOICING_BOOK_URL: ${{ secrets.INVOICING_BOOK_URL }}
         run: python Others/Excel_converter.py
 
       - name: Upload File to Dropbox

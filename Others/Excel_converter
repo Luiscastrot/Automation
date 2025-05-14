@@ -1,9 +1,10 @@
 import pandas as pd
 import requests
 import io
+import os
 
 # 1. Dropbox shared link (must be shared with 'Anyone with the link')
-dropbox_url = 'https://www.dropbox.com/scl/fi/j4kmhh9b82jdeqh2lodhx/Invoicing-Book-and-Sales-All-Companies-v6.0.xlsb?rlkey=hr7qdnxyjhlrsel90wnxmznsx&st=g9060xh7&dl=0'
+dropbox_url = os.environ["INVOICING_BOOK_URL"]
 
 # 2. Convert to direct download link
 direct_url = dropbox_url.replace('?dl=0', '?dl=1')
