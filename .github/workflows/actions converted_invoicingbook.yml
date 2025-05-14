@@ -23,8 +23,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Execute Python script and capture output filename
-        id: run_script
+      - name: execute py script
         env:
           INVOICING_BOOK_URL: ${{ secrets.INVOICING_BOOK_URL }}
         run: python Others/Excel_converter.py
