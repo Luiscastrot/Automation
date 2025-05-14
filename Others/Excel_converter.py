@@ -23,4 +23,11 @@ with pd.ExcelWriter(output_file) as writer:
         df = xlsb.parse(sheet_name=sheet, header=None)
         df.to_excel(writer, sheet_name=sheet, index=False, header=False)
 
-print(output_file)  # print only filename for GitHub Actions
+# Write the output filename to the GitHub Actions environment file
+env_file_path = os.getenv('GITHUB_ENV')
+if env_file_path:
+    with open(env_file_path, "a") as env_file:
+        env_file.write(f"ENV_CUSTOM_DATE_FILE={output_file}\n")
+else:
+    # Fallback: print filename if GITHUB_ENV is not set (e.g., local run)
+    print(output_file)

@@ -1,9 +1,9 @@
-name:  run Excel_converter.py
+name: run Excel_converter.py
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 10 * * 6,0,1' # At 03:00, Monday  (La hora depende de la localización del servidor)
+    - cron: '0 10 * * 6,0,1' # At 10:00 UTC on Saturday, Sunday, Monday
 
 jobs:
   build:
@@ -15,19 +15,21 @@ jobs:
         with:
           python-version: '3.10'
 
-      - run: |
+      - name: Install dependencies
+        run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - id: convert
+      - name: Run Excel converter script
         env:
           INVOICING_BOOK_URL: ${{ secrets.INVOICING_BOOK_URL }}
-        run: |
-          OUTPUT_FILE=$(python Others/Excel_converter.py | tail -n 1)
-          echo "output_file=$OUTPUT_FILE" >> $GITHUB_OUTPUT
+        run: python Others/Excel_converter.py
 
       - name: List files for debugging
         run: ls -la
+
+      - name: Show ENV_CUSTOM_DATE_FILE variable
+        run: echo "Converted file is $ENV_CUSTOM_DATE_FILE"
 
       - name: Upload File to Dropbox
         uses: ./upload-dropbox-action
@@ -35,5 +37,5 @@ jobs:
           DROPBOX_APP_KEY: ${{ secrets.DROPBOX_APP_KEY }}
           DROPBOX_APP_SECRET: ${{ secrets.DROPBOX_APP_SECRET }}
           DROPBOX_REFRESH_TOKEN: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
-          SOURCE_PATH: ${{ steps.convert.outputs.output_file }}
-          DEST_PATH: /carpeta_de_prueba/${{ steps.convert.outputs.output_file }}
+          SOURCE_PATH: ${{ env.ENV_CUSTOM_DATE_FILE }}
+          DEST_PATH: /carpeta_de_prueba/${{ env.ENV_CUSTOM_DATE_FILE }}
