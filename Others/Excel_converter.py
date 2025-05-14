@@ -6,6 +6,8 @@ import time
 
 # 1. Dropbox shared link (must be shared with 'Anyone with the link')
 dropbox_url = os.environ["INVOICING_BOOK_URL"]
+if not dropbox_url:
+    raise Exception("INVOICING_BOOK_URL is not set in the environment variables.")
 
 # Log the start of the download
 start_download_time = time.time()
