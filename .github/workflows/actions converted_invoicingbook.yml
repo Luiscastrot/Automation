@@ -26,7 +26,7 @@ jobs:
       - name: execute py script
         env:
           INVOICING_BOOK_URL: ${{ secrets.INVOICING_BOOK_URL }}
-        run: python Others/Excel_converter.py
+        run: python Sales_Orders/Excel_converter.py
 
       - name: Upload File to Dropbox
         uses: ./upload-dropbox-action
