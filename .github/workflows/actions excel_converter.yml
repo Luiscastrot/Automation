@@ -9,24 +9,25 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
 
-      - name: checkout repo content
-        uses: actions/checkout@v4 # checkout the repository content to github runner
-
-      - name: setup python
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v4
         with:
-          python-version: '3.13' # install the python version needed
-          
-      - name: install python packages
-        run: |
+          python-version: '3.10'
+
+      - run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          
-      - name: execute py script
+
+      - id: convert
         env:
           INVOICING_BOOK_URL: ${{ secrets.INVOICING_BOOK_URL }}
-        run: python Others/Excel_converter.py
+        run: |
+          OUTPUT_FILE=$(python Others/Excel_converter.py | tail -n 1)
+          echo "output_file=$OUTPUT_FILE" >> $GITHUB_OUTPUT
+
+      - name: List files for debugging
+        run: ls -la
 
       - name: Upload File to Dropbox
         uses: ./upload-dropbox-action
@@ -34,5 +35,5 @@ jobs:
           DROPBOX_APP_KEY: ${{ secrets.DROPBOX_APP_KEY }}
           DROPBOX_APP_SECRET: ${{ secrets.DROPBOX_APP_SECRET }}
           DROPBOX_REFRESH_TOKEN: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
-          SOURCE_PATH: ${{env.ENV_CUSTOM_DATE_FILE}}
-          DEST_PATH: /carpeta_de_prueba/${{env.ENV_CUSTOM_DATE_FILE}}
+          SOURCE_PATH: ${{ steps.convert.outputs.output_file }}
+          DEST_PATH: /carpeta_de_prueba/${{ steps.convert.outputs.output_file }}
