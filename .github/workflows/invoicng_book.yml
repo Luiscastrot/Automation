@@ -37,5 +37,5 @@ jobs:
           DROPBOX_APP_KEY: ${{ secrets.DROPBOX_APP_KEY }}
           DROPBOX_APP_SECRET: ${{ secrets.DROPBOX_APP_SECRET }}
           DROPBOX_REFRESH_TOKEN: ${{ secrets.DROPBOX_REFRESH_TOKEN }}
-          SOURCE_PATH: converted_output.xlsx   # Adjust if TARGET_FOLDER used
+          SOURCE_PATH: ${{ github.workspace }}/converted_output.xlsx
           DEST_PATH: /carpeta_de_prueba/converted_output.xlsx
