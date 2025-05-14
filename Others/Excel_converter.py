@@ -6,11 +6,8 @@ import os
 # 1. Dropbox shared link (must be shared with 'Anyone with the link')
 dropbox_url = os.environ["INVOICING_BOOK_URL"]
 
-# 2. Convert to direct download link
-direct_url = dropbox_url.replace('?dl=0', '?dl=1')
-
 # 3. Download the file into memory
-response = requests.get(direct_url)
+response = requests.get(dropbox_url)
 if response.status_code != 200:
     raise Exception("Failed to download file from Dropbox.")
 
