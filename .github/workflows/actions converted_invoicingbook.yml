@@ -1,9 +1,9 @@
-name:  run Excel_converter.py
+name: run Excel_converter.py
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '20 1 * * 1,2,3,4,5,6' # At 01:20, Monday - Saturday (La hora depende de la localización del servidor)
+    - cron: '20 1 * * 1,2,3,4,5,6' # At 01:20, Monday - Saturday
 
 jobs:
   build:
@@ -23,6 +23,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
     
+      - name: Debug - Print INVOICING_BOOK_URL
+        run: echo "INVOICING_BOOK_URL=${{ secrets.INVOICING_BOOK_URL }}"
+
+      - name: Test download from Dropbox
+        run: |
+          curl -L "${{ secrets.INVOICING_BOOK_URL }}" -o test_file.xlsb
+
       - name: execute py script
         env:
           INVOICING_BOOK_URL: ${{ secrets.INVOICING_BOOK_URL }}
