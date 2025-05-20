@@ -134,7 +134,7 @@ def process_sales_orders(sales_orders, user_name):
             'lineItemUnitPrice': adjusted_unit_price,
             'lineItemDiscount': adjusted_discount,
             'discountTotal': adjusted_discount_total,
-            'invoiceDate': invoice_date.strftime('%m/%d/%Y') if invoice_date else ''
+            'invoiceDate': invoice_date.strftime('%d/%m/%Y') if invoice_date else ''
         })
     
     return results

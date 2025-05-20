@@ -134,7 +134,7 @@ def process_credit_note(credit_note, user_name):
             'lineItemUnitPrice': adjusted_unit_price,
             'lineItemDiscount': adjusted_discount,
             'discountTotal': adjusted_discount_total,
-            'completedDate': created_date.strftime('%m/%d/%Y') if created_date else ''
+            'completedDate': created_date.strftime('%d/%m/%Y') if created_date else ''
 
         })
     
