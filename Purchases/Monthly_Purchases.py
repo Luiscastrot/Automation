@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Configuration
 BASE_URL = 'https://api.cin7.com/api/v1/PurchaseOrders'
-FIELDS = 'id,reference,company,firstName,lastName,projectName,source,currencyCode,currencyRate,lineItems,invoiceDate,isVoid'
+FIELDS = 'id,reference,company,firstName,lastName,projectName,source,currencyCode,currencyRate,lineItems,fullyReceivedDate,isVoid'
 ROWS_PER_PAGE = 250
 
 ARL_KEY = os.environ["ARL_KEY"]
@@ -63,13 +63,13 @@ def calculate_date_range():
     return start_date, end_date
 
 def is_valid_purchase_order(purchase_order, start_date, end_date):
-    invoice_date = parse_date(purchase_order.get('invoiceDate'))
+    invoice_date = parse_date(purchase_order.get('fullyReceivedDate'))
     return invoice_date and start_date <= invoice_date <= end_date
     
 def process_purchase_order(purchase_order, user_name):
     line_items = purchase_order.get('lineItems', [])
     currency_rate = float(purchase_order.get('currencyRate', 1))
-    invoice_date = parse_date(purchase_order.get('invoiceDate'))
+    invoice_date = parse_date(purchase_order.get('fullyReceivedDate'))
 
 
      # Create a dictionary to map full names to abbreviations
@@ -109,7 +109,7 @@ def process_purchase_order(purchase_order, user_name):
             'lineItemUnitPrice': adjusted_unit_price,
             'lineItemDiscount': adjusted_discount,
             'lineItemoption3': item.get('option3', ''),
-            'invoiceDate': invoice_date.strftime('%d/%m/%Y') if invoice_date else ''
+            'fullyReceivedDate': invoice_date.strftime('%d/%m/%Y') if invoice_date else ''
         })
 
     return results
@@ -147,7 +147,7 @@ def main():
     start_date, end_date = calculate_date_range()
     
     fieldnames = ['downloadSource', 'sourceUser', 'reference', 'company', 'firstName', 'lastName','projectName','source','currencyCode', 
-    'lineItemcode', 'lineItemName',   'lineItemQty',  'lineItemUnitPrice', 'lineItemDiscount','lineItemoption3', 'invoiceDate'] 
+    'lineItemcode', 'lineItemName',   'lineItemQty',  'lineItemUnitPrice', 'lineItemDiscount','lineItemoption3', 'fullyReceivedDate'] 
     
     file_name = f"Purchase_Orders_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"  
     env_file = os.getenv('GITHUB_ENV')
