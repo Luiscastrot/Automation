@@ -85,6 +85,8 @@ def process_sales_orders(sales_orders, user_name):
     line_items = sales_orders.get('lineItems', [])
     currency_rate = float(sales_orders.get('currencyRate', 1))
     invoice_date = parse_date(sales_orders.get('invoiceDate'))
+    dispatch_date = parse_date(sales_orders.get('dispatchedDate'))
+    estimated_delivery_date = parse_date(sales_orders.get('estimatedDeliveryDate'))
     discount_total = sales_orders.get('discountTotal', 0)
 
     # Create a dictionary to map full names to abbreviations
@@ -118,8 +120,8 @@ def process_sales_orders(sales_orders, user_name):
             'invoiceNumber': sales_orders.get('invoiceNumber'),
             'customerOrderNo': sales_orders.get('customerOrderNo'),
             'createdDate': item.get('createdDate', ''),
-            'estimatedDeliveryDate': sales_orders.get('estimatedDeliveryDate', ''),
-            'dispatchedDate': sales_orders.get('dispatchedDate', ''),
+            'estimatedDeliveryDate': estimated_delivery_date.strftime('%d/%m/%Y') if invoice_date else '',
+            'dispatchedDate': dispatch_date.strftime('%d/%m/%Y') if invoice_date else '',
             'company': sales_orders.get('company'),
             'firstName': sales_orders.get('firstName'),
             'lastName': sales_orders.get('lastName'),
