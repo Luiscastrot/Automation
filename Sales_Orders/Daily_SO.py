@@ -175,7 +175,7 @@ def process_user(user):
                 if is_valid_sales_orders(sales_orders, start_date, end_date):
                     all_sales_orders.extend(process_sales_orders(sales_orders, user['username']))
             except Exception as e:
-                logging.error(f"Error processing sales order: {sales_orders}. Error: {e}")
+                #logging.error(f"Error processing sales order: {sales_orders}. Error: {e}") (logging now in csv file)
                 errores_globales.append({
                     'user': user['username'],
                     'order_id': sales_orders.get('id'),
