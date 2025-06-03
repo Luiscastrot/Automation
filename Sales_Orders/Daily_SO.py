@@ -7,6 +7,7 @@ from dateutil import parser
 import pytz
 import logging
 import os
+errores_globales = []
 from concurrent.futures import ThreadPoolExecutor
 from api_tracker import log_api_call, get_api_usage
 
@@ -175,6 +176,13 @@ def process_user(user):
                     all_sales_orders.extend(process_sales_orders(sales_orders, user['username']))
             except Exception as e:
                 logging.error(f"Error processing sales order: {sales_orders}. Error: {e}")
+                errores_globales.append({
+                    'user': user['username'],
+                    'order_id': sales_orders.get('id'),
+                    'reference': sales_orders.get('reference'),
+                    'error': str(e),
+                    'timestamp': datetime.datetime.utcnow().isoformat()
+    })
 
         logging.info(f"Page {page} processed for user {user['username']}.")
         page += 1
@@ -215,6 +223,21 @@ def main():
     for user in USERS:
         user_usage = get_api_usage(user['username'])
         logging.info(f"Final API Usage for {user['username']}: {user_usage['api_calls']} calls")
+
+    # Guardar errores en CSV
+    error_file = "errores_sales_orders.csv"
+    fieldnames_error = ['user', 'order_id', 'reference', 'error', 'timestamp']
+
+    if errores_globales:
+        with open(error_file, mode='w', newline='', encoding='utf-8') as error_csv:
+            writer = csv.DictWriter(error_csv, fieldnames=fieldnames_error)
+            writer.writeheader()
+            for err in errores_globales:
+                writer.writerow(err)
+        logging.info(f"Errores guardados en {error_file}")
+    else:
+        logging.info("No se detectaron errores durante el procesamiento.")
+
 
 if __name__ == "__main__":
     main()
