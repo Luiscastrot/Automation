@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Configuration
 BASE_URL = 'https://api.cin7.com/api/v1/SalesOrders'
-FIELDS = 'id,reference,customerOrderNo,salesReference,invoiceDate,createdDate,company,firstName,lastName,projectName,source,currencyCode,currencyRate,lineItems,discountTotal,completedDate,invoiceNumber'
+FIELDS = 'id,reference,customerOrderNo,salesReference,invoiceDate,estimatedDeliveryDate,company,firstName,lastName,projectName,source,currencyCode,currencyRate,lineItems,discountTotal,completedDate,invoiceNumber'
 ROWS_PER_PAGE = 250
 
 ARL_KEY = os.environ["ARL_KEY"]
@@ -88,6 +88,7 @@ def process_sales_orders(sales_orders, user_name):
     line_items = sales_orders.get('lineItems', [])
     currency_rate = float(sales_orders.get('currencyRate', 1))
     invoice_date = parse_date(sales_orders.get('invoiceDate'))
+    estimated_delivery_date = parse_date(sales_orders.get('estimatedDeliveryDate'))
     discount_total = sales_orders.get('discountTotal', 0)
 
      # Create a dictionary to map full names to abbreviations
@@ -119,7 +120,7 @@ def process_sales_orders(sales_orders, user_name):
             'reference': sales_orders.get('reference'),
             'invoiceNumber':sales_orders.get('invoiceNumber'),
             'customerOrderNo':sales_orders.get('customerOrderNo'),
-            'createdDate': item.get('createdDate',''),
+            'estimatedDeliveryDate': estimated_delivery_date.strftime('%d/%m/%Y') if invoice_date else '',
             'company': sales_orders.get('company'),
             'firstName': sales_orders.get('firstName'),
             'lastName': sales_orders.get('lastName'),
@@ -174,7 +175,7 @@ def process_user(user):
 def main():
     start_date, end_date = calculate_date_range()
     
-    fieldnames = ['sourceUser','reference', 'invoiceNumber','customerOrderNo','createdDate','company', 'firstName', 'lastName', 'projectName', 
+    fieldnames = ['sourceUser','reference', 'invoiceNumber','customerOrderNo','estimatedDeliveryDate','company', 'firstName', 'lastName', 'projectName', 
                   'channel', 'currencyCode','lineItemcode', 'lineItemName','lineItemQty','lineItemoption3', 'lineItemUnitPrice', 'lineItemDiscount', 'discountTotal','invoiceDate']
     
     file_name = f"Sales_Orders_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.csv"
